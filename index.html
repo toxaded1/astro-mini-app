@@ -9,93 +9,63 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  /* ── ПРЕМИУМ ПАЛИТРА И БАЗА ── */
   :root {
-    --bg: #0B0E14;
-    --paper: #121620;
-    --paper-active: #181d29;
-    --text-main: #E2E8F0;
-    --text-muted: #828C9F;
-    --gold: #D8B258;
-    --gold-dim: rgba(216, 178, 88, 0.15);
-    --line: rgba(255, 255, 255, 0.06);
-    --line-strong: rgba(216, 178, 88, 0.3);
+    --bg: #0B0E14; --paper: #121620; --paper-active: #181d29;
+    --text-main: #E2E8F0; --text-muted: #828C9F;
+    --gold: #D8B258; --gold-dim: rgba(216, 178, 88, 0.15);
+    --line: rgba(255, 255, 255, 0.06); --line-strong: rgba(216, 178, 88, 0.3);
   }
   
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { 
-    background: var(--bg); color: var(--text-main); 
-    font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.5;
-    padding-bottom: 90px; overflow-x: hidden;
-  }
+  body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.5; padding-bottom: 90px; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 0%, rgba(216,178,88,0.08) 0%, transparent 50%); }
 
-  /* Фоновый шум и градиент */
-  body::before {
-    content: ''; position: fixed; inset: 0; z-index: -1;
-    background: radial-gradient(circle at 50% 0%, rgba(216,178,88,0.08) 0%, transparent 50%);
-  }
-
-  /* ── ЗАГОЛОВКИ ── */
   h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #fff; }
   .page-title { font-size: 28px; margin-bottom: 6px; letter-spacing: 0.02em; }
   .page-subtitle { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold); font-size: 16px; margin-bottom: 24px; }
 
-  /* ── ЭКРАНЫ (SPA) ── */
   .screen { display: none; padding: 24px 20px; animation: fade 0.4s ease; }
   .screen.active { display: block; }
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* ── КАРТОЧКИ ЗНАКОВ (АККОРДЕОН) ── */
+  /* ── КАТАЛОГ ЗНАКОВ ── */
   .catalog-list { display: flex; flex-direction: column; gap: 12px; }
-  .sign-card {
-    background: var(--paper); border: 1px solid var(--line);
-    border-radius: 16px; overflow: hidden; transition: all 0.3s ease;
-  }
+  .sign-card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; transition: all 0.3s ease; }
   .sign-card.open { border-color: var(--line-strong); background: var(--paper-active); }
-  
-  .sign-header {
-    padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer;
-  }
+  .sign-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
   .sign-info { display: flex; align-items: center; gap: 14px; }
-  .sign-icon {
-    width: 44px; height: 44px; border-radius: 50%; background: var(--gold-dim);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: var(--gold); border: 1px solid rgba(216, 178, 88, 0.2);
-  }
+  .sign-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-dim); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--gold); border: 1px solid rgba(216, 178, 88, 0.2); }
   .sign-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; margin-bottom: 2px; }
   .sign-dates { font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; }
-  
   .sign-toggle { color: var(--text-muted); transition: transform 0.3s ease; }
   .sign-card.open .sign-toggle { transform: rotate(180deg); color: var(--gold); }
-
-  .sign-body {
-    max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .sign-content {
-    padding: 0 20px 20px 20px; color: var(--text-muted); font-size: 14px; line-height: 1.6;
-    border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 16px;
-  }
-  .sign-tags { display: flex; gap: 8px; margin-bottom: 12px; }
+  
+  .sign-body { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .sign-content { padding: 0 20px 20px 20px; color: var(--text-muted); font-size: 14px; line-height: 1.6; border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 16px; }
+  .sign-tags { display: flex; gap: 8px; margin-bottom: 16px; }
   .tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 50px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold); }
+  .trait-block { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.03); }
+  .trait-title { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #fff; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
 
-  /* ── ПЛЕЙСХОЛДЕРЫ ДЛЯ ДРУГИХ ВКЛАДОК ── */
-  .placeholder-card {
-    background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px; text-align: center;
-  }
+  /* ── ТАРО: 3D КАРТА ── */
+  .tarot-section { margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; }
+  .scene { width: 180px; height: 280px; perspective: 1000px; cursor: pointer; margin-bottom: 20px; }
+  .card { width: 100%; height: 100%; position: relative; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+  .scene.is-flipped .card { transform: rotateY(180deg); }
+  
+  .card__face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 12px; border: 1px solid var(--line-strong); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .card__face--front { background: linear-gradient(135deg, #1a1e29 0%, #0f1219 100%); background-image: radial-gradient(rgba(216, 178, 88, 0.2) 1px, transparent 1px); background-size: 10px 10px; }
+  .card__face--back { background: var(--paper-active); transform: rotateY(180deg); }
+  
+  .tarot-result { display: none; text-align: center; animation: fade 0.5s ease; background: var(--paper); padding: 20px; border-radius: 16px; border: 1px solid var(--line); }
+  .tarot-name { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--gold); margin-bottom: 10px; }
+  .tarot-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-  /* ── НАВИГАЦИЯ (BOTTOM BAR) ── */
-  .tab-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
-    background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom);
-    z-index: 100;
-  }
-  .tab-btn {
-    flex: 1; background: none; border: none; color: #525C70;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    cursor: pointer; transition: all 0.2s;
-  }
+  /* ── ПРОЧЕЕ ── */
+  .placeholder-card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 24px; text-align: center; }
+  
+  .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+  .tab-btn { flex: 1; background: none; border: none; color: #525C70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; transition: all 0.2s; }
   .tab-btn.active { color: var(--gold); }
   .tab-icon { font-size: 22px; transition: transform 0.2s; }
   .tab-btn.active .tab-icon { transform: translateY(-2px); filter: drop-shadow(0 0 8px rgba(216,178,88,0.4)); }
@@ -106,144 +76,198 @@
 
   <!-- ВКЛАДКА 1: ПРОГНОЗ -->
   <section id="tab-home" class="screen">
-    <h1 class="page-title" id="user-sign-title">Твой прогноз</h1>
+    <h1 class="page-title">Твой прогноз</h1>
     <div class="page-subtitle">Синхронизация с космосом</div>
-    
     <div class="placeholder-card">
       <div style="font-size: 40px; margin-bottom: 10px;">✨</div>
-      <h3 style="margin-bottom: 10px; font-size: 20px;">Гороскоп в разработке</h3>
-      <p style="color: var(--text-muted); font-size: 14px;">Здесь будет выводиться ежедневный ИИ-прогноз. Пока мы тестируем структуру, перейдите во вкладку «Все знаки».</p>
+      <h3 style="margin-bottom: 10px; font-size: 20px;">Гороскоп настраивается</h3>
+      <p style="color: var(--text-muted); font-size: 14px;">Алгоритм в разработке. Зайди во вкладку «Сервисы», чтобы вытянуть Карту Дня.</p>
     </div>
   </section>
 
-  <!-- ВКЛАДКА 2: КАТАЛОГ ЗНАКОВ (ТОТ САМЫЙ ПЛОТНЫЙ БЛОК) -->
+  <!-- ВКЛАДКА 2: ЗНАКИ ЗОДИАКА (УГЛУБЛЕННАЯ) -->
   <section id="tab-catalog" class="screen active">
     <h1 class="page-title">Зодиакальный круг</h1>
-    <div class="page-subtitle">Базовые архетипы личности</div>
-
-    <div class="catalog-list" id="zodiac-catalog">
-      <!-- Карточки генерируются через JS -->
-    </div>
+    <div class="page-subtitle">Глубинный разбор архетипов</div>
+    <div class="catalog-list" id="zodiac-catalog"></div>
   </section>
 
-  <!-- ВКЛАДКА 3: СЕРВИСЫ -->
+  <!-- ВКЛАДКА 3: СЕРВИСЫ И ТАРО -->
   <section id="tab-services" class="screen">
-    <h1 class="page-title">Премиум сервисы</h1>
-    <div class="page-subtitle">Глубинный анализ</div>
+    <h1 class="page-title">Эзотерика</h1>
+    <div class="page-subtitle">Инструменты познания</div>
     
+    <!-- Интерактивный блок Таро -->
+    <div class="tarot-section">
+      <h3 style="margin-bottom: 16px;">Карта Дня</h3>
+      <div class="scene" id="tarot-scene">
+        <div class="card">
+          <div class="card__face card__face--front">
+            <div style="font-size: 36px; margin-bottom: 10px;">👁️</div>
+            <div style="font-family: 'Cormorant Garamond', serif; color: var(--gold); font-size: 18px;">Нажми, чтобы<br>открыть</div>
+          </div>
+          <div class="card__face card__face--back" id="tarot-card-front">
+            <!-- Сюда подставится иконка карты -->
+          </div>
+        </div>
+      </div>
+      <div class="tarot-result" id="tarot-result">
+        <div class="tarot-name" id="tarot-name"></div>
+        <div class="tarot-desc" id="tarot-desc"></div>
+      </div>
+    </div>
+
     <div class="placeholder-card" style="border-color: var(--line-strong);">
       <div style="font-size: 40px; margin-bottom: 10px;">🔮</div>
       <h3 style="margin-bottom: 10px; font-size: 20px;">Матрица совместимости</h3>
       <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Подробный разбор синастрии с партнером на базе алгоритмов.</p>
-      <button style="background: linear-gradient(135deg, var(--gold), #c4993a); border: none; border-radius: 50px; padding: 14px 24px; color: #111; font-weight: 600; width: 100%; font-size: 15px;">Открыть за 150 ⭐️</button>
+      <button style="background: linear-gradient(135deg, var(--gold), #c4993a); border: none; border-radius: 50px; padding: 14px 24px; color: #111; font-weight: 600; width: 100%; font-size: 15px;" onclick="Telegram.WebApp.showAlert('Скоро подключим оплату Stars!')">Открыть за 150 ⭐️</button>
     </div>
   </section>
 
-  <!-- НИЖНЕЕ МЕНЮ -->
   <nav class="tab-bar">
-    <button class="tab-btn" data-target="tab-home">
-      <span class="tab-icon">✨</span><span class="tab-label">Прогноз</span>
-    </button>
-    <button class="tab-btn active" data-target="tab-catalog">
-      <span class="tab-icon">🌌</span><span class="tab-label">Все знаки</span>
-    </button>
-    <button class="tab-btn" data-target="tab-services">
-      <span class="tab-icon">🔮</span><span class="tab-label">Сервисы</span>
-    </button>
+    <button class="tab-btn" data-target="tab-home"><span class="tab-icon">✨</span><span class="tab-label">Прогноз</span></button>
+    <button class="tab-btn active" data-target="tab-catalog"><span class="tab-icon">🌌</span><span class="tab-label">Все знаки</span></button>
+    <button class="tab-btn" data-target="tab-services"><span class="tab-icon">🔮</span><span class="tab-label">Сервисы</span></button>
   </nav>
 
 <script>
-  // Инициализация Telegram
   const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.expand();
-    tg.setHeaderColor('#0B0E14');
-    tg.setBackgroundColor('#0B0E14');
-  }
+  if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#0B0E14'); tg.setBackgroundColor('#0B0E14'); }
 
-  // Роутинг экранов
+  // Роутинг
   const tabBtns = document.querySelectorAll('.tab-btn');
   const screens = document.querySelectorAll('.screen');
-
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      
       tabBtns.forEach(b => b.classList.remove('active'));
       screens.forEach(s => s.classList.remove('active'));
-
       btn.classList.add('active');
       document.getElementById(btn.getAttribute('data-target')).classList.add('active');
       window.scrollTo(0, 0);
     });
   });
 
-  // База классических описаний знаков зодиака
+  // Расширенная база Знаков Зодиака
   const zodiacData = [
-    { id: 'aries', icon: '♈', name: 'Овен', dates: '21 марта — 19 апреля', element: 'Огонь', planet: 'Марс', desc: 'Овны — прирожденные лидеры и первооткрыватели. Они обладают неиссякаемой энергией, прямолинейны и всегда готовы к действию. Их главный двигатель — страсть и желание быть первыми во всем.' },
-    { id: 'taurus', icon: '♉', name: 'Телец', dates: '20 апреля — 20 мая', element: 'Земля', planet: 'Венера', desc: 'Тельцы ценят стабильность, комфорт и материальное благополучие. Это очень надежные, терпеливые и практичные люди, которые умеют наслаждаться красотой мира и создавать уют вокруг себя.' },
-    { id: 'gemini', icon: '♊', name: 'Близнецы', dates: '21 мая — 20 июня', element: 'Воздух', planet: 'Меркурий', desc: 'Главная черта Близнецов — коммуникабельность и жажда новой информации. Они интеллектуальны, легко адаптируются к переменам и способны выполнять несколько дел одновременно.' },
-    { id: 'cancer', icon: '♋', name: 'Рак', dates: '21 июня — 22 июля', element: 'Вода', planet: 'Луна', desc: 'Раки обладают глубочайшей интуицией и эмоциональностью. Для них невероятно важны семья и дом. Они заботливы, эмпатичны, но часто прячут свои истинные чувства под крепким панцирем.' },
-    { id: 'leo', icon: '♌', name: 'Лев', dates: '23 июля — 22 августа', element: 'Огонь', planet: 'Солнце', desc: 'Львы созданы для того, чтобы сиять. Это харизматичные, щедрые и творческие личности. Они нуждаются в признании, умеют брать на себя ответственность и защищать тех, кого любят.' },
-    { id: 'virgo', icon: '♍', name: 'Дева', dates: '23 августа — 22 сентября', element: 'Земля', planet: 'Меркурий', desc: 'Девы — мастера порядка и логики. Они аналитичны, внимательны к малейшим деталям и стремятся к совершенству. Это главные перфекционисты зодиака, на которых всегда можно положиться.' },
-    { id: 'libra', icon: '♎', name: 'Весы', dates: '23 сентября — 22 октября', element: 'Воздух', planet: 'Венера', desc: 'Весы находятся в вечном поиске гармонии, справедливости и эстетики. Они прекрасные дипломаты, избегают конфликтов и умеют видеть ситуацию с разных сторон.' },
-    { id: 'scorpio', icon: '♏', name: 'Скорпион', dates: '23 октября — 21 ноября', element: 'Вода', planet: 'Плутон', desc: 'Самый таинственный и страстный знак. Скорпионы обладают мощной волей, проницательностью и не боятся кризисов. Они склонны к постоянной трансформации и глубокому самопознанию.' },
-    { id: 'sagittarius', icon: '♐', name: 'Стрелец', dates: '22 ноября — 21 декабря', element: 'Огонь', planet: 'Юпитер', desc: 'Стрельцы — оптимисты и искатели истины. Они обожают свободу, путешествия и философские беседы. Их вдохновляет расширение горизонтов и новые впечатления.' },
-    { id: 'capricorn', icon: '♑', name: 'Козерог', dates: '22 декабря — 19 января', element: 'Земля', planet: 'Сатурн', desc: 'Козероги — воплощение дисциплины и амбиций. Они ставят перед собой высокие цели и методично, шаг за шагом, идут к вершине. Это самые трудолюбивые и ответственные люди.' },
-    { id: 'aquarius', icon: '♒', name: 'Водолей', dates: '20 января — 18 февраля', element: 'Воздух', planet: 'Уран', desc: 'Водолеи — новаторы и бунтари. Они мыслят нестандартно, ценят свою независимость и часто опережают время. Для них важны идеалы дружбы и глобального прогресса.' },
-    { id: 'pisces', icon: '♓', name: 'Рыбы', dates: '19 февраля — 20 марта', element: 'Вода', planet: 'Нептун', desc: 'Рыбы закрывают зодиакальный круг, вбирая в себя мудрость всех знаков. Они невероятно творческие, мечтательные и эмпатичные натуры, глубоко чувствующие тонкие энергии мира.' }
+    { icon: '♈', name: 'Овен', dates: '21.03 — 19.04', element: 'Огонь', planet: 'Марс', 
+      desc: 'Овны — прирожденные лидеры. Их главный двигатель — страсть и желание быть первыми.',
+      shadow: 'Вспыльчивость, нетерпеливость и склонность бросать начатое на полпути, если пропал интерес.',
+      talent: 'Способность зажигать людей идеями и мгновенно принимать решения в кризисных ситуациях.' },
+    { icon: '♉', name: 'Телец', dates: '20.04 — 20.05', element: 'Земля', planet: 'Венера', 
+      desc: 'Тельцы ценят стабильность, комфорт и материальное благополучие. Это очень надежные люди.',
+      shadow: 'Упрямство, собственничество и страх перед любыми резкими переменами.',
+      talent: 'Умение материализовать идеи в реальные деньги и создавать невероятный уют.' },
+    { icon: '♊', name: 'Близнецы', dates: '21.05 — 20.06', element: 'Воздух', planet: 'Меркурий', 
+      desc: 'Главная черта Близнецов — коммуникабельность и жажда новой информации. Легко адаптируются.',
+      shadow: 'Поверхностность, ненадежность и привычка обещать больше, чем способны выполнить.',
+      talent: 'Гениальное умение договариваться с кем угодно и находить выход из информационного хаоса.' },
+    { icon: '♋', name: 'Рак', dates: '21.06 — 22.07', element: 'Вода', planet: 'Луна', 
+      desc: 'Раки обладают глубочайшей интуицией. Эмпатичны, но часто прячут чувства под панцирем.',
+      shadow: 'Эмоциональные качели, обидчивость и склонность к манипуляциям через чувство вины.',
+      talent: 'Мощнейшая эмпатия и способность считывать истинные мотивы других людей без слов.' },
+    { icon: '♌', name: 'Лев', dates: '23.07 — 22.08', element: 'Огонь', planet: 'Солнце', 
+      desc: 'Львы харизматичны, щедры и творчески одарены. Нуждаются в признании и защищают своих.',
+      shadow: 'Гордыня, эгоцентризм и непереносимость любой, даже конструктивной критики.',
+      talent: 'Магнетизм, природный авторитет и умение организовать людей вокруг себя.' },
+    { icon: '♍', name: 'Дева', dates: '23.08 — 22.09', element: 'Земля', planet: 'Меркурий', 
+      desc: 'Девы — мастера порядка и логики. Внимательны к деталям и стремятся к совершенству.',
+      shadow: 'Критиканство, занудство и синдром отличника, который не дает им расслабиться.',
+      talent: 'Аналитический ум и способность навести идеальный порядок там, где все рушится.' },
+    { icon: '♎', name: 'Весы', dates: '23.09 — 22.10', element: 'Воздух', planet: 'Венера', 
+      desc: 'Весы находятся в вечном поиске гармонии и справедливости. Прекрасные дипломаты.',
+      shadow: 'Нерешительность, зависимость от чужого мнения и склонность избегать острых углов.',
+      talent: 'Тонкий эстетический вкус и дар примирять даже самых заклятых врагов.' },
+    { icon: '♏', name: 'Скорпион', dates: '23.10 — 21.11', element: 'Вода', planet: 'Плутон', 
+      desc: 'Самый таинственный и страстный знак. Обладают мощной волей и не боятся кризисов.',
+      shadow: 'Ревность, злопамятность и склонность к саморазрушению в моменты сильного стресса.',
+      talent: 'Умение видеть людей насквозь и возрождаться из пепла после любых неудач.' },
+    { icon: '♐', name: 'Стрелец', dates: '22.11 — 21.12', element: 'Огонь', planet: 'Юпитер', 
+      desc: 'Стрельцы — оптимисты и искатели истины. Обожают свободу, философию и путешествия.',
+      shadow: 'Бестактность, категоричность и неумение ценить то, что есть здесь и сейчас.',
+      talent: 'Масштабное видение, способность вдохновлять и невероятная удачливость.' },
+    { icon: '♑', name: 'Козерог', dates: '22.12 — 19.01', element: 'Земля', planet: 'Сатурн', 
+      desc: 'Козероги — воплощение дисциплины. Ставят высокие цели и методично идут к вершине.',
+      shadow: 'Холодность, трудоголизм и склонность использовать людей ради своих целей.',
+      talent: 'Несгибаемая воля, стратегическое мышление и способность управлять крупными системами.' },
+    { icon: '♒', name: 'Водолей', dates: '20.01 — 18.02', element: 'Воздух', planet: 'Уран', 
+      desc: 'Водолеи — новаторы и бунтари. Мыслят нестандартно и ценят свою независимость.',
+      shadow: 'Эмоциональная отстраненность, непредсказуемость и склонность к анархии.',
+      talent: 'Визионерство, способность генерировать идеи из будущего и объединять единомышленников.' },
+    { icon: '♓', name: 'Рыбы', dates: '19.02 — 20.03', element: 'Вода', planet: 'Нептун', 
+      desc: 'Рыбы вбирают мудрость всех знаков. Невероятно творческие, мечтательные и эмпатичные.',
+      shadow: 'Склонность к иллюзиям, позиция жертвы и попытки сбежать от суровой реальности.',
+      talent: 'Глубокая связь с подсознанием, творческая гениальность и развитая интуиция.' }
   ];
 
-  // Генерация карточек знаков
-  const catalogContainer = document.getElementById('zodiac-catalog');
-  
+  const catalog = document.getElementById('zodiac-catalog');
   zodiacData.forEach(sign => {
     const card = document.createElement('div');
     card.className = 'sign-card';
     card.innerHTML = `
       <div class="sign-header">
-        <div class="sign-info">
-          <div class="sign-icon">${sign.icon}</div>
-          <div>
-            <div class="sign-name">${sign.name}</div>
-            <div class="sign-dates">${sign.dates}</div>
-          </div>
-        </div>
+        <div class="sign-info"><div class="sign-icon">${sign.icon}</div><div><div class="sign-name">${sign.name}</div><div class="sign-dates">${sign.dates}</div></div></div>
         <div class="sign-toggle">▼</div>
       </div>
       <div class="sign-body">
         <div class="sign-content">
-          <div class="sign-tags">
-            <span class="tag">${sign.element}</span>
-            <span class="tag">${sign.planet}</span>
-          </div>
+          <div class="sign-tags"><span class="tag">${sign.element}</span><span class="tag">${sign.planet}</span></div>
           ${sign.desc}
+          <div class="trait-block"><div class="trait-title">🌑 Теневая сторона</div>${sign.shadow}</div>
+          <div class="trait-block"><div class="trait-title">✨ Скрытый талант</div>${sign.talent}</div>
         </div>
-      </div>
-    `;
-
-    // Логика аккордеона (открытие/закрытие с плавной анимацией)
+      </div>`;
+    
     const header = card.querySelector('.sign-header');
     const body = card.querySelector('.sign-body');
-    
     header.addEventListener('click', () => {
       const isOpen = card.classList.contains('open');
-      
-      // Закрываем все остальные открытые карточки
       document.querySelectorAll('.sign-card').forEach(c => {
-        c.classList.remove('open');
-        c.querySelector('.sign-body').style.maxHeight = null;
+        c.classList.remove('open'); c.querySelector('.sign-body').style.maxHeight = null;
       });
-
       if (!isOpen) {
-        card.classList.add('open');
-        body.style.maxHeight = body.scrollHeight + "px";
+        card.classList.add('open'); body.style.maxHeight = body.scrollHeight + "px";
         if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
       }
     });
+    catalog.appendChild(card);
+  });
 
-    catalogContainer.appendChild(card);
+  // Логика Таро (Карта Дня)
+  const tarotCards = [
+    { name: 'Маг (I)', icon: '🪄', desc: 'Сегодня все ресурсы находятся в ваших руках. Действуйте смело, проявляйте инициативу — Вселенная поддержит любые начинания.' },
+    { name: 'Верховная Жрица (II)', icon: '🌙', desc: 'Доверьтесь интуиции, а не логике. Внимательно наблюдайте за знаками — сегодня скрытое может стать явным.' },
+    { name: 'Колесо Фортуны (X)', icon: '🎡', desc: 'Грядут неожиданные перемены. Отпустите контроль и позвольте потоку событий вынести вас на новый уровень.' },
+    { name: 'Звезда (XVII)', icon: '⭐', desc: 'День надежды и вдохновения. Вы на правильном пути. Отличное время для творчества и построения долгосрочных планов.' }
+  ];
+
+  const tarotScene = document.getElementById('tarot-scene');
+  const tarotCardFront = document.getElementById('tarot-card-front');
+  const tarotResult = document.getElementById('tarot-result');
+  let hasPulledTarot = false;
+
+  tarotScene.addEventListener('click', () => {
+    if (hasPulledTarot) return;
+    
+    // Вибрация при вытягивании
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    
+    // Выбираем случайную карту
+    const randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+    tarotCardFront.innerHTML = `<div style="font-size: 50px; margin-bottom: 10px;">${randomCard.icon}</div><div style="font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--gold);">${randomCard.name}</div>`;
+    
+    // Переворачиваем карту
+    tarotScene.classList.add('is-flipped');
+    hasPulledTarot = true;
+
+    // Показываем текст с задержкой
+    setTimeout(() => {
+      document.getElementById('tarot-name').innerText = randomCard.name;
+      document.getElementById('tarot-desc').innerText = randomCard.desc;
+      tarotResult.style.display = 'block';
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }, 800);
   });
 </script>
 </body>
