@@ -2,333 +2,1795 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1">
-<title>Lumina Core</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07090E">
+<title>Lumina — астрология, таро, совместимость</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  :root {
-    --bg: #07090E; --paper: #10141D; --paper-active: #171C28;
-    --text-main: #E2E8F0; --text-muted: #828C9F;
-    --gold: #D8B258; --gold-dim: rgba(216, 178, 88, 0.12);
-    --line: rgba(255, 255, 255, 0.05); --line-strong: rgba(216, 178, 88, 0.25);
-    --accent-do: #00E676; --accent-dont: #FF3B30;
-  }
-  
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { background: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.5; padding-bottom: 90px; overflow-x: hidden; }
-  body::before { content: ''; position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 50% -20%, rgba(216,178,88,0.1) 0%, transparent 70%); }
+:root {
+  --bg: #07090E; --paper: #10141D; --paper-2: #151A26; --paper-active: #1A2030;
+  --text-main: #E7ECF3; --text-muted: #8A93A6; --text-dim: #5A6378;
+  --gold: #D8B258; --gold-2: #F0D48C; --gold-dim: rgba(216,178,88,.12);
+  --line: rgba(255,255,255,.06); --line-strong: rgba(216,178,88,.3);
+  --good: #4ADE9B; --bad: #FF6B6B; --mid: #8FB8FF;
+  --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg); }
+body { background: var(--bg); color: var(--text-main); font-family: var(--sans); font-size: 15px; line-height: 1.5; padding-bottom: calc(86px + var(--safe-b)); overflow-x: hidden; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+body::before { content: ''; position: fixed; inset: 0; z-index: -2; background: radial-gradient(ellipse at 50% -10%, rgba(216,178,88,.13) 0%, transparent 60%), radial-gradient(ellipse at 100% 100%, rgba(80,90,160,.08) 0%, transparent 50%); }
+#stars { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .55; }
+button { font-family: inherit; color: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+b, strong { color: #fff; font-weight: 600; }
 
-  h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #fff; }
-  .page-title { font-size: 32px; margin-bottom: 4px; letter-spacing: 0.01em; }
-  .page-subtitle { font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--gold); font-size: 17px; margin-bottom: 24px; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; color: #fff; }
+.page-title { font-size: 34px; line-height: 1.1; letter-spacing: .01em; }
+.page-subtitle { font-family: var(--serif); font-style: italic; color: var(--gold); font-size: 17px; margin: 4px 0 22px; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); font-weight: 600; }
+.muted { color: var(--text-muted); } .dim { color: var(--text-dim); }
+.serif { font-family: var(--serif); }
+.gold { color: var(--gold); }
+.small { font-size: 13px; }
+.center { text-align: center; }
+.mt8 { margin-top: 8px; } .mt12 { margin-top: 12px; } .mt16 { margin-top: 16px; } .mt20 { margin-top: 20px; }
 
-  .screen { display: none; padding: 24px 20px; animation: fade 0.3s ease; }
-  .screen.active { display: block; }
-  @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.screen { display: none; padding: 22px 18px 10px; max-width: 560px; margin: 0 auto; animation: fade .35s ease; }
+.screen.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-  .card-glass { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 16px; position: relative; overflow: hidden; }
-  .card-glass::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(216,178,88,0.2), transparent); }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 18px; margin-bottom: 14px; position: relative; overflow: hidden; }
+.card::after { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(216,178,88,.35), transparent); }
+.card-title { font-family: var(--serif); font-size: 22px; color: #fff; margin-bottom: 4px; line-height: 1.2; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.divider { height: 1px; background: var(--line); margin: 14px 0; }
 
-  /* ── ФОН ДНЯ (CO-STAR STYLE) ── */
-  .vibe-row { display: flex; align-items: flex-start; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
-  .vibe-col { flex: 1; }
-  .vibe-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; font-weight: 600; }
-  .vibe-text { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: #fff; line-height: 1.3; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; border-radius: 14px; padding: 14px 18px; font-weight: 600; font-size: 15px; transition: transform .15s, opacity .2s; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: linear-gradient(135deg, var(--gold-2), var(--gold) 45%, #B88D33); color: #1A1305; width: 100%; box-shadow: 0 6px 24px rgba(216,178,88,.18); }
+.btn-ghost { background: rgba(255,255,255,.04); border: 1px solid var(--line); color: var(--text-main); }
+.btn-link { background: none; border: none; color: var(--gold); font-size: 13px; font-weight: 600; padding: 4px 0; }
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn { flex: 1; }
 
-  /* ── КАТАЛОГ ЗНАКОВ ── */
-  .catalog-list { display: flex; flex-direction: column; gap: 12px; }
-  .sign-card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; transition: all 0.3s ease; }
-  .sign-card.open { border-color: var(--line-strong); background: var(--paper-active); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-  .sign-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-  .sign-info { display: flex; align-items: center; gap: 14px; }
-  .sign-icon { width: 44px; height: 44px; border-radius: 50%; background: var(--gold-dim); display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid rgba(216, 178, 88, 0.2); }
-  .sign-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; margin-bottom: 0; color: var(--gold); }
-  .sign-dates { font-size: 12px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; }
-  .sign-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-  .sign-content { padding: 0 20px 20px 20px; font-size: 14.5px; line-height: 1.6; color: var(--text-muted); }
-  .tag { background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 50px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold); display: inline-block; margin: 0 6px 16px 0; }
-  .trait-block { margin-top: 14px; }
-  .trait-title { font-family: 'Cormorant Garamond', serif; font-weight: 600; color: #fff; font-size: 17px; margin-bottom: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.05); border: 1px solid var(--line); padding: 5px 11px; border-radius: 99px; font-size: 12px; color: var(--text-main); white-space: nowrap; }
+.chip.gold { color: var(--gold); border-color: rgba(216,178,88,.25); background: var(--gold-dim); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
 
-  /* ── СИНАСТРИЯ (СОВМЕСТИМОСТЬ) ── */
-  .synastry-selectors { display: flex; gap: 10px; margin-bottom: 20px; }
-  .sign-select { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--line); color: #fff; padding: 12px; border-radius: 12px; font-size: 15px; outline: none; appearance: none; text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 18px; }
-  .btn-primary { background: linear-gradient(135deg, var(--gold), #c4993a); border: none; border-radius: 12px; padding: 14px; color: #000; font-weight: 600; width: 100%; font-size: 15px; cursor: pointer; }
-  .synastry-result { display: none; margin-top: 20px; animation: fade 0.4s ease; }
-  .bar-row { margin-bottom: 12px; }
-  .bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; font-weight: 500; }
-  .bar-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
-  .bar-fill { height: 100%; width: 0; background: var(--gold); border-radius: 4px; transition: width 1s ease-out; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.input, .select { width: 100%; background: rgba(0,0,0,.35); border: 1px solid var(--line); color: #fff; padding: 13px 14px; border-radius: 12px; font-size: 16px; outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none; color-scheme: dark; }
+.input:focus, .select:focus { border-color: var(--line-strong); }
+.select { background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 34px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-muted); margin: -4px 0 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--gold); }
 
-  /* ── НАВИГАЦИЯ ── */
-  .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: rgba(7, 9, 14, 0.9); backdrop-filter: blur(15px); border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-  .tab-btn { flex: 1; background: none; border: none; color: #525C70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: color 0.2s; }
-  .tab-btn.active { color: var(--gold); }
-  .tab-icon { font-size: 22px; transition: transform 0.2s; }
-  .tab-btn.active .tab-icon { transform: translateY(-2px); filter: drop-shadow(0 0 8px rgba(216,178,88,0.4)); }
-  .tab-label { font-size: 11px; font-weight: 500; }
+.seg { display: flex; background: rgba(0,0,0,.35); border: 1px solid var(--line); border-radius: 12px; padding: 3px; margin-bottom: 16px; }
+.seg button { flex: 1; background: none; border: none; padding: 10px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--text-muted); transition: all .2s; }
+.seg button.on { background: var(--paper-active); color: var(--gold); box-shadow: 0 2px 10px rgba(0,0,0,.3); }
+
+/* ── HOME ── */
+.greet { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+.date-line { font-size: 13px; color: var(--text-muted); text-transform: capitalize; margin-top: 4px; }
+.avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--gold-dim); border: 1px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--gold); flex-shrink: 0; }
+.moon-hero { display: flex; gap: 16px; align-items: center; }
+.moon-hero svg { flex-shrink: 0; filter: drop-shadow(0 0 22px rgba(240,212,140,.25)); }
+.moon-name { font-family: var(--serif); font-size: 26px; color: #fff; line-height: 1.1; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.stat { background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 12px; padding: 10px; text-align: center; }
+.stat-v { font-family: var(--serif); font-size: 19px; color: var(--gold); line-height: 1.2; }
+.stat-l { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+.vibe-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.vibe-title { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; font-weight: 600; }
+.vibe-text { font-family: var(--serif); font-size: 17px; color: #fff; line-height: 1.25; }
+.headline { font-family: var(--serif); font-size: 25px; color: var(--gold); line-height: 1.2; margin: 6px 0 14px; }
+.bars { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-bottom: 4px; }
+.bar-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); font-weight: 500; }
+.bar-label span:last-child { color: #fff; }
+.bar-track { height: 5px; background: rgba(255,255,255,.06); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, #B88D33, var(--gold-2)); border-radius: 4px; transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+.transit { padding: 12px 0; border-top: 1px solid var(--line); }
+.transit:first-of-type { border-top: none; }
+.transit-h { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 13px; font-weight: 600; color: #fff; }
+.transit-h .badge { font-size: 10px; padding: 2px 7px; border-radius: 99px; text-transform: uppercase; letter-spacing: .05em; }
+.badge.good { background: rgba(74,222,155,.12); color: var(--good); }
+.badge.bad { background: rgba(255,107,107,.12); color: var(--bad); }
+.badge.mid { background: rgba(143,184,255,.12); color: var(--mid); }
+.transit p { font-size: 14px; color: var(--text-muted); line-height: 1.55; }
+.planet-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.planet-row:first-child { border-top: none; }
+.pglyph { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.04); display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--gold); flex-shrink: 0; }
+.planet-row .pname { flex: 1; font-size: 14px; }
+.planet-row .ppos { font-size: 13px; color: var(--text-muted); text-align: right; }
+.retro { color: var(--bad); font-weight: 700; font-size: 11px; margin-left: 4px; }
+
+/* мини-карта дня */
+.daycard { display: flex; gap: 16px; align-items: center; }
+.daycard .tcard { width: 92px; flex-shrink: 0; }
+
+/* ── LUNAR CALENDAR ── */
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-nav { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--line); font-size: 16px; color: var(--gold); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { font-size: 10px; color: var(--text-dim); text-align: center; text-transform: uppercase; padding-bottom: 4px; }
+.cal-day { aspect-ratio: 1 / 1.15; background: rgba(0,0,0,.2); border: 1px solid transparent; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-size: 12px; padding: 2px; }
+.cal-day .e { font-size: 15px; line-height: 1; }
+.cal-day .z { font-size: 10px; color: var(--text-dim); }
+.cal-day.today { border-color: var(--gold); }
+.cal-day.sel { background: var(--gold-dim); border-color: var(--line-strong); }
+.cal-day.empty { background: none; }
+.cal-detail { margin-top: 12px; background: rgba(0,0,0,.25); border-radius: 14px; padding: 14px; border: 1px solid var(--line); }
+
+/* ── SIGNS ── */
+.sign-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sign-tile { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 14px 6px 12px; text-align: center; transition: transform .15s, border-color .2s; position: relative; }
+.sign-tile:active { transform: scale(.96); }
+.sign-tile.mine { border-color: var(--line-strong); background: linear-gradient(180deg, var(--gold-dim), var(--paper)); }
+.sign-tile .g { font-size: 28px; color: var(--gold); line-height: 1.2; }
+.sign-tile .n { font-family: var(--serif); font-size: 18px; color: #fff; font-weight: 600; }
+.sign-tile .d { font-size: 10.5px; color: var(--text-muted); }
+.sign-tile .el { position: absolute; top: 8px; right: 9px; width: 6px; height: 6px; border-radius: 50%; }
+.big-glyph { width: 74px; height: 74px; border-radius: 50%; background: radial-gradient(circle, rgba(216,178,88,.2), transparent 70%); border: 1px solid var(--line-strong); display: flex; align-items: center; justify-content: center; font-size: 38px; color: var(--gold); margin: 0 auto 10px; }
+.section-t { font-family: var(--serif); font-size: 19px; color: #fff; margin: 18px 0 6px; display: flex; align-items: center; gap: 8px; }
+.prose { font-size: 14.5px; color: var(--text-muted); line-height: 1.65; }
+.prose p + p { margin-top: 10px; }
+.talismans { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.talisman { background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.talisman .l { font-size: 10.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; }
+.talisman .v { font-size: 14px; color: #fff; margin-top: 2px; }
+
+/* ── SHEET ── */
+.sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); z-index: 200; opacity: 0; pointer-events: none; transition: opacity .3s; }
+.sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 92vh; background: #0C1018; border-top: 1px solid var(--line-strong); border-radius: 24px 24px 0 0; z-index: 201; transform: translateY(105%); transition: transform .38s cubic-bezier(.2,.8,.2,1); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px 18px calc(28px + var(--safe-b)); max-width: 560px; margin: 0 auto; }
+.sheet.open { transform: none; }
+.sheet-grab { width: 40px; height: 4px; background: rgba(255,255,255,.15); border-radius: 4px; margin: 0 auto 10px; }
+.sheet-close { position: sticky; top: 0; float: right; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.07); border: none; color: var(--text-muted); font-size: 16px; z-index: 2; }
+
+/* ── TAROT ── */
+.spread-list { display: flex; gap: 8px; overflow-x: auto; padding: 2px 18px 4px; margin: 0 -18px 14px; scrollbar-width: none; }
+.spread-list::-webkit-scrollbar { display: none; }
+.spread-btn { flex-shrink: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 108px; text-align: left; transition: all .2s; }
+.spread-btn .i { font-size: 18px; color: var(--gold); }
+.spread-btn .t { font-size: 13px; font-weight: 600; }
+.spread-btn .c { font-size: 11px; color: var(--text-dim); }
+.spread-btn.on { border-color: var(--gold); background: var(--gold-dim); }
+.table { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 18px 0 6px; perspective: 1000px; }
+.table.celtic { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.slot { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 96px; }
+.table.n1 .slot { width: 150px; }
+.table.n4 .slot, .table.n5 .slot { width: 30%; max-width: 104px; }
+.table.celtic .slot { width: auto; }
+.slot-label { font-size: 10.5px; color: var(--text-muted); text-align: center; line-height: 1.2; min-height: 26px; }
+.tcard { width: 100%; aspect-ratio: 0.58; position: relative; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3,.7,.2,1); cursor: pointer; }
+.tcard.flipped { transform: rotateY(180deg); }
+.tcard .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; overflow: hidden; }
+.tcard .back { background: radial-gradient(circle at 50% 50%, #2A2140 0%, #121022 70%); border: 1px solid rgba(216,178,88,.45); display: flex; align-items: center; justify-content: center; }
+.tcard .back::before { content: ''; position: absolute; inset: 5px; border: 1px solid rgba(216,178,88,.25); border-radius: 7px; background-image: repeating-linear-gradient(45deg, rgba(216,178,88,.06) 0 2px, transparent 2px 9px), repeating-linear-gradient(-45deg, rgba(216,178,88,.06) 0 2px, transparent 2px 9px); }
+.tcard .back span { position: relative; font-size: 26px; color: var(--gold); text-shadow: 0 0 14px rgba(216,178,88,.6); }
+.tcard .front { transform: rotateY(180deg); background: linear-gradient(170deg, #1E1A2E 0%, #121522 100%); border: 1px solid var(--gold); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8% 6%; }
+.tcard .front.rev .inner { transform: rotate(180deg); }
+.tcard .front .inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 9% 6%; }
+.tcard .num { font-family: var(--serif); color: var(--gold); font-size: clamp(12px, 3.4vw, 17px); font-weight: 700; letter-spacing: .05em; }
+.tcard .sym { color: var(--gold-2); font-size: clamp(26px, 9vw, 52px); line-height: 1; text-shadow: 0 0 18px rgba(240,212,140,.4); }
+.tcard .sym svg { width: clamp(30px, 10vw, 54px); height: clamp(30px, 10vw, 54px); stroke: var(--gold-2); fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(240,212,140,.35)); }
+.tcard .cname { font-family: var(--serif); color: #fff; font-size: clamp(10px, 2.9vw, 14px); text-align: center; line-height: 1.1; font-weight: 600; }
+.table.celtic .tcard .cname { font-size: 9px; }
+.table.celtic .tcard .sym { font-size: 22px; }
+.table.celtic .tcard .sym svg { width: 24px; height: 24px; }
+.table.celtic .slot-label { font-size: 9.5px; min-height: 24px; }
+.reading-item { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); animation: fade .4s ease; }
+.reading-item:first-child { border-top: none; }
+.reading-item .ri-n { width: 26px; height: 26px; border-radius: 50%; background: var(--gold-dim); color: var(--gold); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ri-pos { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+.ri-name { font-family: var(--serif); font-size: 19px; color: #fff; line-height: 1.2; }
+.ri-text { font-size: 14px; color: var(--text-muted); margin-top: 3px; line-height: 1.55; }
+.verdict { text-align: center; font-family: var(--serif); font-size: 40px; color: var(--gold); line-height: 1; margin: 6px 0; }
+.textarea { width: 100%; min-height: 64px; resize: none; background: rgba(0,0,0,.35); border: 1px solid var(--line); border-radius: 12px; color: #fff; padding: 12px 14px; font-size: 15px; outline: none; }
+.hist-item { padding: 12px 0; border-top: 1px solid var(--line); }
+.hist-item:first-child { border-top: none; }
+.deck-search { margin-bottom: 12px; }
+.deck-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.deck-grid .tcard { cursor: pointer; }
+
+/* ── MATCH ── */
+.vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; margin-bottom: 16px; }
+.vs-x { font-family: var(--serif); color: var(--gold); font-size: 22px; padding-bottom: 12px; }
+.ring-wrap { display: flex; flex-direction: column; align-items: center; margin: 6px 0 16px; }
+.ring-wrap svg { overflow: visible; }
+.ring-val { font-family: var(--serif); font-size: 40px; fill: #fff; font-weight: 600; }
+.ring-sub { font-size: 10px; fill: var(--text-muted); letter-spacing: .1em; text-transform: uppercase; }
+.match-title { font-family: var(--serif); font-size: 24px; color: var(--gold); text-align: center; line-height: 1.2; }
+.bars-1 { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+.syn-asp { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.syn-asp:first-child { border-top: none; }
+.syn-asp .g { font-size: 15px; color: var(--gold); width: 64px; flex-shrink: 0; letter-spacing: .05em; }
+
+/* ── ME / NATAL ── */
+.big3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 4px; }
+.b3 { background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 14px; padding: 10px 6px; text-align: center; }
+.b3 .g { font-size: 22px; color: var(--gold); }
+.b3 .v { font-family: var(--serif); font-size: 17px; color: #fff; line-height: 1.15; }
+.b3 .l { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+.wheel-wrap { display: flex; justify-content: center; margin: 4px -6px; }
+.wheel-wrap svg { width: 100%; max-width: 380px; height: auto; }
+.acc { border-top: 1px solid var(--line); }
+.acc:first-child { border-top: none; }
+.acc-h { display: flex; align-items: center; gap: 12px; padding: 11px 0; cursor: pointer; }
+.acc-h .t { flex: 1; font-size: 14px; }
+.acc-h .s { font-size: 12.5px; color: var(--text-muted); text-align: right; }
+.acc-h .arr { color: var(--text-dim); transition: transform .25s; font-size: 12px; }
+.acc.open .arr { transform: rotate(90deg); color: var(--gold); }
+.acc-b { display: none; font-size: 14px; color: var(--text-muted); padding: 0 0 12px 46px; line-height: 1.6; }
+.acc.open .acc-b { display: block; animation: fade .3s ease; }
+.balance { display: flex; flex-direction: column; gap: 10px; }
+.num-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.num-cell { background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 14px; padding: 12px; cursor: pointer; }
+.num-cell .v { font-family: var(--serif); font-size: 34px; color: var(--gold); line-height: 1; }
+.num-cell .l { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.num-cell .t { font-size: 13px; color: #fff; font-weight: 600; }
+.notice { font-size: 12.5px; color: var(--text-muted); background: rgba(143,184,255,.06); border: 1px solid rgba(143,184,255,.15); border-radius: 12px; padding: 10px 12px; line-height: 1.5; }
+.empty-state { text-align: center; padding: 10px 6px; }
+.empty-state .g { font-size: 40px; margin-bottom: 8px; }
+
+/* ── NAV ── */
+.tab-bar { position: fixed; bottom: 0; left: 0; right: 0; height: calc(66px + var(--safe-b)); background: rgba(7,9,14,.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-top: 1px solid var(--line); display: flex; padding-bottom: var(--safe-b); z-index: 100; }
+.tab-btn { flex: 1; background: none; border: none; color: #4F586C; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; transition: color .2s; }
+.tab-btn.active { color: var(--gold); }
+.tab-icon { font-size: 21px; line-height: 1; transition: transform .2s; filter: grayscale(1) brightness(.75); }
+.tab-btn.active .tab-icon { transform: translateY(-2px); filter: drop-shadow(0 0 8px rgba(216,178,88,.45)); }
+.tab-label { font-size: 10.5px; font-weight: 600; letter-spacing: .02em; }
+.toast { position: fixed; left: 50%; bottom: calc(84px + var(--safe-b)); transform: translateX(-50%) translateY(20px); background: var(--paper-active); border: 1px solid var(--line-strong); color: #fff; font-size: 13px; padding: 10px 16px; border-radius: 12px; opacity: 0; pointer-events: none; transition: all .3s; z-index: 300; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%); }
+@media (max-width: 360px) { .sign-grid { grid-template-columns: repeat(2, 1fr); } .page-title { font-size: 30px; } }
+
 </style>
 </head>
 <body>
+<canvas id="stars"></canvas>
 
-  <!-- ЭКРАН 1: ФОН ДНЯ -->
-  <section id="tab-home" class="screen">
-    <h1 class="page-title">Эфир</h1>
-    <div class="page-subtitle">Космическая сводка на сегодня</div>
-    
-    <div class="card-glass">
-      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted);">Главный фокус</div>
-      <div id="vibe-focus" style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--gold); line-height: 1.2; margin-top: 4px;">Загрузка...</div>
-      
-      <div class="vibe-row">
-        <div class="vibe-col">
-          <div class="vibe-title" style="color: var(--accent-do);">✅ Делать</div>
-          <div class="vibe-text" id="vibe-do">...</div>
-        </div>
-        <div class="vibe-col">
-          <div class="vibe-title" style="color: var(--accent-dont);">🚫 Избегать</div>
-          <div class="vibe-text" id="vibe-dont">...</div>
-        </div>
-      </div>
-    </div>
+<section id="home" class="screen active"></section>
+<section id="tarot" class="screen"></section>
+<section id="match" class="screen"></section>
+<section id="signs" class="screen"></section>
+<section id="me" class="screen"></section>
 
-    <div class="card-glass">
-      <div style="font-size: 30px; margin-bottom: 10px;">✨</div>
-      <h3 style="margin-bottom: 6px; font-size: 20px;">ИИ-Гороскоп</h3>
-      <p style="color: var(--text-muted); font-size: 14px;">Ваш личный нейро-прогноз на день появится здесь после подключения Telegram-ядра.</p>
-    </div>
-  </section>
+<nav class="tab-bar">
+  <button class="tab-btn active" data-target="home"><span class="tab-icon">✨</span><span class="tab-label">Эфир</span></button>
+  <button class="tab-btn" data-target="tarot"><span class="tab-icon">🃏</span><span class="tab-label">Таро</span></button>
+  <button class="tab-btn" data-target="match"><span class="tab-icon">💞</span><span class="tab-label">Связи</span></button>
+  <button class="tab-btn" data-target="signs"><span class="tab-icon">🌌</span><span class="tab-label">Знаки</span></button>
+  <button class="tab-btn" data-target="me"><span class="tab-icon">🔮</span><span class="tab-label">Моя карта</span></button>
+</nav>
 
-  <!-- ЭКРАН 2: ПОЛНЫЙ ЗОДИАК (ВЕЛИКАЯ 12-КА) -->
-  <section id="tab-catalog" class="screen active">
-    <h1 class="page-title">Архетипы</h1>
-    <div class="page-subtitle">Глубинная суть 12 знаков</div>
-    <div class="catalog-list" id="zodiac-catalog"></div>
-  </section>
-
-  <!-- ЭКРАН 3: СИНАСТРИЯ -->
-  <section id="tab-services" class="screen">
-    <h1 class="page-title">Связи</h1>
-    <div class="page-subtitle">Матрица совместимости</div>
-    
-    <div class="card-glass">
-      <h3 style="margin-bottom: 6px;">Расчет Синастрии</h3>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Выберите два знака, чтобы увидеть их динамику в отношениях.</p>
-      
-      <div class="synastry-selectors">
-        <select id="sign-1" class="sign-select"></select>
-        <select id="sign-2" class="sign-select"></select>
-      </div>
-      <button class="btn-primary" id="btn-synastry">Проверить связь</button>
-
-      <div class="synastry-result" id="synastry-result">
-        <div style="font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--gold); margin-bottom: 16px; text-align: center;" id="synastry-title"></div>
-        
-        <div class="bar-row">
-          <div class="bar-label"><span>Любовь & Страсть</span><span id="syn-val-love">0%</span></div>
-          <div class="bar-track"><div class="bar-fill" id="syn-fill-love"></div></div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label"><span>Дружба & Доверие</span><span id="syn-val-friend">0%</span></div>
-          <div class="bar-track"><div class="bar-fill" id="syn-fill-friend"></div></div>
-        </div>
-        <div class="bar-row">
-          <div class="bar-label"><span>Бизнес & Быт</span><span id="syn-val-work">0%</span></div>
-          <div class="bar-track"><div class="bar-fill" id="syn-fill-work"></div></div>
-        </div>
-        
-        <p id="synastry-desc" style="font-size: 13.5px; color: var(--text-muted); margin-top: 16px; line-height: 1.6;"></p>
-      </div>
-    </div>
-  </section>
-
-  <nav class="tab-bar">
-    <button class="tab-btn" data-target="tab-home"><span class="tab-icon">✨</span><span class="tab-label">Эфир</span></button>
-    <button class="tab-btn active" data-target="tab-catalog"><span class="tab-icon">🌌</span><span class="tab-label">Знаки</span></button>
-    <button class="tab-btn" data-target="tab-services"><span class="tab-icon">🔮</span><span class="tab-label">Связи</span></button>
-  </nav>
+<div class="sheet-backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet"><div class="sheet-grab"></div><button class="sheet-close" id="sheet-close" aria-label="Закрыть">✕</button><div id="sheet-body"></div></div>
+<div class="toast" id="toast"></div>
 
 <script>
-  const tg = window.Telegram?.WebApp;
-  if (tg) { tg.ready(); tg.expand(); tg.setHeaderColor('#07090E'); tg.setBackgroundColor('#07090E'); }
+// ═══════════════ АСТРО-ДВИЖОК ═══════════════
+// Позиции планет по методу P. Schlyter (точность ~1–2′ для Солнца/Луны, ~1° для планет),
+// тропический зодиак, эпоха даты. Асцендент/MC — через звёздное время.
+const Astro = (() => {
+  const RAD = Math.PI / 180, DEG = 180 / Math.PI;
+  const norm = a => ((a % 360) + 360) % 360;
+  const sind = a => Math.sin(a * RAD), cosd = a => Math.cos(a * RAD);
+  const atan2d = (y, x) => Math.atan2(y, x) * DEG;
+  const jd = date => date.getTime() / 86400000 + 2440587.5;
+  const dnum = j => j - 2451543.5;
 
-  // ── РОУТИНГ ──
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const screens = document.querySelectorAll('.screen');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-      tabBtns.forEach(b => b.classList.remove('active')); screens.forEach(s => s.classList.remove('active'));
-      btn.classList.add('active'); document.getElementById(btn.getAttribute('data-target')).classList.add('active'); window.scrollTo(0, 0);
-    });
-  });
+  const ELEM = {
+    mercury: d => ({ N: 48.3313 + 3.24587e-5 * d, i: 7.0047 + 5.0e-8 * d, w: 29.1241 + 1.01444e-5 * d, a: 0.387098, e: 0.205635 + 5.59e-10 * d, M: 168.6562 + 4.0923344368 * d }),
+    venus:   d => ({ N: 76.6799 + 2.4659e-5 * d, i: 3.3946 + 2.75e-8 * d, w: 54.891 + 1.38374e-5 * d, a: 0.72333, e: 0.006773 - 1.302e-9 * d, M: 48.0052 + 1.6021302244 * d }),
+    mars:    d => ({ N: 49.5574 + 2.11081e-5 * d, i: 1.8497 - 1.78e-8 * d, w: 286.5016 + 2.92961e-5 * d, a: 1.523688, e: 0.093405 + 2.516e-9 * d, M: 18.6021 + 0.5240207766 * d }),
+    jupiter: d => ({ N: 100.4542 + 2.76854e-5 * d, i: 1.303 - 1.557e-7 * d, w: 273.8777 + 1.64505e-5 * d, a: 5.20256, e: 0.048498 + 4.469e-9 * d, M: 19.895 + 0.0830853001 * d }),
+    saturn:  d => ({ N: 113.6634 + 2.3898e-5 * d, i: 2.4886 - 1.081e-7 * d, w: 339.3939 + 2.97661e-5 * d, a: 9.55475, e: 0.055546 - 9.499e-9 * d, M: 316.967 + 0.0334442282 * d }),
+    uranus:  d => ({ N: 74.0005 + 1.3978e-5 * d, i: 0.7733 + 1.9e-8 * d, w: 96.6612 + 3.0565e-5 * d, a: 19.18171 - 1.55e-8 * d, e: 0.047318 + 7.45e-9 * d, M: 142.5905 + 0.011725806 * d }),
+    neptune: d => ({ N: 131.7806 + 3.0173e-5 * d, i: 1.77 - 2.55e-7 * d, w: 272.8461 - 6.027e-6 * d, a: 30.05826 + 3.313e-8 * d, e: 0.008606 + 2.15e-9 * d, M: 260.2471 + 0.005995147 * d }),
+  };
 
-  // ── CO-STAR STYLE: ГЕНЕРАТОР ФОНА ДНЯ ──
-  const focusList = ["Очищение пространства от лишнего", "Внезапные инсайты в рутине", "Кармическая отработка связей", "Заземление и материальный рост", "Срыв планов ради чего-то лучшего"];
-  const doList = ["Слушать интуицию", "Отвечать нет", "Навести порядок", "Рисковать", "Просить помощи", "Молчать"];
-  const dontList = ["Спорить с начальством", "Покупать на эмоциях", "Сплетничать", "Торопить события", "Игнорировать тело"];
-  
-  document.getElementById('vibe-focus').innerText = focusList[Math.floor(Math.random() * focusList.length)];
-  document.getElementById('vibe-do').innerText = doList[Math.floor(Math.random() * doList.length)];
-  document.getElementById('vibe-dont').innerText = dontList[Math.floor(Math.random() * dontList.length)];
+  function kepler(Mdeg, e) {
+    const M = norm(Mdeg) * RAD;
+    let E = M + e * Math.sin(M) * (1 + e * Math.cos(M));
+    for (let k = 0; k < 15; k++) {
+      const dE = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E));
+      E -= dE;
+      if (Math.abs(dE) < 1e-10) break;
+    }
+    return E;
+  }
 
-  // ── ПОЛНАЯ БАЗА ИЗ 12 ЗНАКОВ С ГЛУБОКИМ ОПИСАНИЕМ ──
-  const zodiacData = [
-    { id: 0, icon: '♈', name: 'Овен', dates: '21.03 — 19.04', element: 'Огонь', planet: 'Марс', 
-      desc: 'Первый знак зодиака, искра творения. Овны — первопроходцы, чья энергия направлена вовне. Они не ждут подходящего момента, они его создают.', 
-      shadow: 'Вспыльчивость, неспособность доводить дела до конца, эгоцентризм и жестокость в гневе.', 
-      talent: 'Способность мгновенно мобилизоваться в кризис и зажигать толпу одной лишь идеей.',
-      karma: 'Научиться терпению и понять, что победа не всегда требует разрушения.' },
-    { id: 1, icon: '♉', name: 'Телец', dates: '20.04 — 20.05', element: 'Земля', planet: 'Венера', 
-      desc: 'Фундамент зодиака. Тельцы превращают хаос в форму, оценивая мир через осязание и материю. Для них важна эстетика, комфорт и безопасность.', 
-      shadow: 'Патологическое упрямство, собственничество, лень и страх перед любыми переменами.', 
-      talent: 'Невероятная способность приумножать ресурсы и создавать красоту вокруг себя.',
-      karma: 'Отпустить привязанность к материальным вещам и людям; принять изменчивость мира.' },
-    { id: 2, icon: '♊', name: 'Близнецы', dates: '21.05 — 20.06', element: 'Воздух', planet: 'Меркурий', 
-      desc: 'Вечные ученики и проводники информации. Близнецы живут в ментальном потоке, легко адаптируются и способны выполнять пять задач одновременно.', 
-      shadow: 'Поверхностность, двуличие, нервозность и неспособность к глубокой концентрации.', 
-      talent: 'Гениальный дар нетворкинга — они могут найти общий язык с кем угодно.',
-      karma: 'Научиться фокусу и ответственности за сказанные слова.' },
-    { id: 3, icon: '♋', name: 'Рак', dates: '21.06 — 22.07', element: 'Вода', planet: 'Луна', 
-      desc: 'Хранители эмоций и памяти. Раки воспринимают мир через чувства. Их внешняя броня скрывает невероятно ранимое и заботливое ядро.', 
-      shadow: 'Эмоциональный шантаж, жизнь прошлым, обидчивость и позиция жертвы.', 
-      talent: 'Глубочайшая эмпатия и способность создавать психологически безопасное пространство.',
-      karma: 'Перестать прятаться в панцирь и научиться эмоциональной сепарации от близких.' },
-    { id: 4, icon: '♌', name: 'Лев', dates: '23.07 — 22.08', element: 'Огонь', planet: 'Солнце', 
-      desc: 'Центр притяжения. Львы пришли в этот мир, чтобы сиять, творить и любить. Они обладают природным благородством и колоссальным запасом витальности.', 
-      shadow: 'Гордыня, зависимость от лести, деспотизм и непереносимость критики.', 
-      talent: 'Способность вдохновлять одним своим присутствием и абсолютная творческая свобода.',
-      karma: 'Понять, что истинное величие не требует постоянных аплодисментов.' },
-    { id: 5, icon: '♍', name: 'Дева', dates: '23.08 — 22.09', element: 'Земля', planet: 'Меркурий', 
-      desc: 'Алхимики зодиака. Девы фильтруют, анализируют и улучшают всё, к чему прикасаются. Для них смысл жизни кроется в служении и наведении порядка.', 
-      shadow: 'Занудство, мелочность, критиканство и разрушительный перфекционизм.', 
-      talent: 'Системное мышление и способность решать проблемы, которые другие считают нерешаемыми.',
-      karma: 'Принять несовершенство этого мира и научиться отдыхать без чувства вины.' },
-    { id: 6, icon: '♎', name: 'Весы', dates: '23.09 — 22.10', element: 'Воздух', planet: 'Венера', 
-      desc: 'Искатели баланса. Весы оценивают мир через призму эстетики и отношений. Они отражают других людей, стремясь к идеальной гармонии во всем.', 
-      shadow: 'Пассивная агрессия, нерешительность, лицемерие ради сохранения "худого мира".', 
-      talent: 'Талант дипломата, способного примирить злейших врагов и создать безупречный стиль.',
-      karma: 'Научиться делать выбор и говорить "нет", даже если это нарушит покой.' },
-    { id: 7, icon: '♏', name: 'Скорпион', dates: '23.10 — 21.11', element: 'Вода', planet: 'Плутон', 
-      desc: 'Энергия трансформации. Скорпионы обитают на глубине, где нет полутонов. Они видят истинные мотивы людей и обладают гипнотическим влиянием.', 
-      shadow: 'Мстительность, ревность, паранойя и склонность к саморазрушению.', 
-      talent: 'Способность возрождаться из пепла после тотального краха и исцелять чужие травмы.',
-      karma: 'Трансформировать свою внутреннюю тьму в свет, отпустить жажду контроля.' },
-    { id: 8, icon: '♐', name: 'Стрелец', dates: '22.11 — 21.12', element: 'Огонь', planet: 'Юпитер', 
-      desc: 'Философы и авантюристы. Стрельцы целятся в бесконечность, их питает расширение горизонтов — через путешествия, знания и духовный поиск.', 
-      shadow: 'Категоричность, бестактность под маской честности и нежелание брать обязательства.', 
-      talent: 'Масштабное видение, неиссякаемый оптимизм и невероятная удачливость.',
-      karma: 'Осознать, что истина многогранна, а свобода — это не побег от ответственности.' },
-    { id: 9, icon: '♑', name: 'Козерог', dates: '22.12 — 19.01', element: 'Земля', planet: 'Сатурн', 
-      desc: 'Стратеги и строители. Козероги видят цель и методично, превозмогая любые препятствия, идут к ней. Время и дисциплина — их главные союзники.', 
-      shadow: 'Холодность, безжалостность к себе и другим, использование людей ради выгоды.', 
-      talent: 'Невероятная выносливость и способность выстраивать нерушимые империи.',
-      karma: 'Открыть свое сердце и понять, что не всё в жизни измеряется достижениями.' },
-    { id: 10, icon: '♒', name: 'Водолей', dates: '20.01 — 18.02', element: 'Воздух', planet: 'Уран', 
-      desc: 'Визионеры из будущего. Водолеи ломают старые парадигмы во имя свободы и прогресса. Они ценят интеллект, дружбу и абсолютную независимость.', 
-      shadow: 'Отстраненность, эмоциональная холодность, бунт ради бунта и анархия.', 
-      talent: 'Гениальные озарения и способность объединять абсолютно разных людей ради великой идеи.',
-      karma: 'Научиться эмпатии и связи с одним конкретным человеком, а не только с человечеством.' },
-    { id: 11, icon: '♓', name: 'Рыбы', dates: '19.02 — 20.03', element: 'Вода', planet: 'Нептун', 
-      desc: 'Мистики и мечтатели. Рыбы вбирают в себя опыт всего зодиака. У них нет жестких границ, они растворяются в искусстве, музыке и чужой боли.', 
-      shadow: 'Эскапизм (побег от реальности), склонность к зависимостям и синдром мученика.', 
-      talent: 'Связь с Высшим, интуиция уровня медиума и способность создавать шедевры искусства.',
-      karma: 'Научиться заземляться, выстраивать личные границы и не спасать тех, кто этого не просит.' }
+  function orbit(el) {
+    const E = kepler(el.M, el.e);
+    const xv = el.a * (Math.cos(E) - el.e), yv = el.a * Math.sqrt(1 - el.e * el.e) * Math.sin(E);
+    const v = atan2d(yv, xv), r = Math.hypot(xv, yv), vw = v + el.w;
+    const x = r * (cosd(el.N) * cosd(vw) - sind(el.N) * sind(vw) * cosd(el.i));
+    const y = r * (sind(el.N) * cosd(vw) + cosd(el.N) * sind(vw) * cosd(el.i));
+    const z = r * sind(vw) * sind(el.i);
+    return { lon: norm(atan2d(y, x)), lat: atan2d(z, Math.hypot(x, y)), r };
+  }
+
+  function sunAt(d) {
+    const w = 282.9404 + 4.70935e-5 * d, e = 0.016709 - 1.151e-9 * d, M = 356.047 + 0.9856002585 * d;
+    const E = kepler(M, e);
+    const xv = Math.cos(E) - e, yv = Math.sqrt(1 - e * e) * Math.sin(E);
+    return { lon: norm(atan2d(yv, xv) + w), r: Math.hypot(xv, yv), M: norm(M), w };
+  }
+
+  function moonAt(d, s) {
+    const N = 125.1228 - 0.0529538083 * d, w = 318.0634 + 0.1643573223 * d, M = 115.3654 + 13.0649929509 * d;
+    const o = orbit({ N, i: 5.1454, w, a: 60.2666, e: 0.0549, M });
+    const Ms = s.M, Mm = norm(M), Ls = norm(s.M + s.w), Lm = norm(M + w + N), D = Lm - Ls, F = Lm - N;
+    const lon = o.lon
+      - 1.274 * sind(Mm - 2 * D) + 0.658 * sind(2 * D) - 0.186 * sind(Ms)
+      - 0.059 * sind(2 * Mm - 2 * D) - 0.057 * sind(Mm - 2 * D + Ms) + 0.053 * sind(Mm + 2 * D)
+      + 0.046 * sind(2 * D - Ms) + 0.041 * sind(Mm - Ms) - 0.035 * sind(D)
+      - 0.031 * sind(Mm + Ms) - 0.015 * sind(2 * F - 2 * D) + 0.011 * sind(Mm - 4 * D);
+    return norm(lon);
+  }
+
+  function planetGeo(name, d, s) {
+    const o = orbit(ELEM[name](d));
+    let lon = o.lon;
+    if (name === 'jupiter' || name === 'saturn' || name === 'uranus') {
+      const Mj = norm(ELEM.jupiter(d).M), Ms = norm(ELEM.saturn(d).M), Mu = norm(ELEM.uranus(d).M);
+      if (name === 'jupiter') lon += -0.332 * sind(2 * Mj - 5 * Ms - 67.6) - 0.056 * sind(2 * Mj - 2 * Ms + 21) + 0.042 * sind(3 * Mj - 5 * Ms + 21) - 0.036 * sind(Mj - 2 * Ms) + 0.022 * cosd(Mj - Ms) + 0.023 * sind(2 * Mj - 3 * Ms + 52) - 0.016 * sind(Mj - 5 * Ms - 69);
+      if (name === 'saturn') lon += 0.812 * sind(2 * Mj - 5 * Ms - 67.6) - 0.229 * cosd(2 * Mj - 4 * Ms - 2) + 0.119 * sind(Mj - 2 * Ms - 3) + 0.046 * sind(2 * Mj - 6 * Ms - 69) + 0.014 * sind(Mj - 3 * Ms + 32);
+      if (name === 'uranus') lon += 0.04 * sind(Ms - 2 * Mu + 6) + 0.035 * sind(Ms - 3 * Mu + 33) - 0.015 * sind(Mj - Mu + 20);
+    }
+    const x = o.r * cosd(o.lat) * cosd(lon) + s.r * cosd(s.lon);
+    const y = o.r * cosd(o.lat) * sind(lon) + s.r * sind(s.lon);
+    return norm(atan2d(y, x));
+  }
+
+  const PLANET_KEYS = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+
+  function rawPositions(d) {
+    const s = sunAt(d);
+    const out = { sun: s.lon, moon: moonAt(d, s) };
+    for (const k of ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']) out[k] = planetGeo(k, d, s);
+    return out;
+  }
+
+  // Позиции на момент date (+ флаг ретроградности)
+  function positions(date) {
+    const d = dnum(jd(date));
+    const p = rawPositions(d), p2 = rawPositions(d + 0.5), p1 = rawPositions(d - 0.5);
+    const res = {};
+    for (const k of PLANET_KEYS) {
+      let speed = p2[k] - p1[k];
+      if (speed > 180) speed -= 360; if (speed < -180) speed += 360;
+      res[k] = { lon: p[k], speed, retro: speed < 0 && k !== 'sun' && k !== 'moon' };
+    }
+    return res;
+  }
+
+  function angles(date, lat, lonE) {
+    const j = jd(date), d = dnum(j), T = (j - 2451545) / 36525;
+    const gmst = 280.46061837 + 360.98564736629 * (j - 2451545) + 0.000387933 * T * T;
+    const lst = norm(gmst + lonE), eps = 23.4393 - 3.563e-7 * d;
+    const mc = norm(atan2d(sind(lst), cosd(lst) * cosd(eps)));
+    const asc = norm(atan2d(cosd(lst), -(sind(lst) * cosd(eps) + Math.tan(lat * RAD) * sind(eps))));
+    return { asc, mc };
+  }
+
+  const moonElong = date => {
+    const d = dnum(jd(date)); const s = sunAt(d);
+    return norm(moonAt(d, s) - s.lon);
+  };
+
+  function moonInfo(date) {
+    const d = dnum(jd(date)); const s = sunAt(d); const m = moonAt(d, s);
+    const el = norm(m - s.lon);
+    const illum = (1 - cosd(el)) / 2;
+    const phase = Math.floor((el + 22.5) / 45) % 8;
+    const age = el / 360 * 29.530589;
+    return { lon: m, elong: el, illum, phase, age, lunarDay: Math.floor(age) + 1, sign: Math.floor(m / 30) };
+  }
+
+  // Ближайший момент, когда элонгация Луны = target (0 новолуние, 180 полнолуние)
+  function nextPhase(from, target) {
+    const H = 3600000;
+    const f = t => { let v = norm(moonElong(new Date(t)) - target); return v > 180 ? v - 360 : v; };
+    let t = from.getTime(), prev = f(t);
+    for (let i = 0; i < 24 * 32; i += 6) {
+      const t2 = t + 6 * H, cur = f(t2);
+      if (prev < 0 && cur >= 0) {
+        let a = t, b = t2;
+        for (let k = 0; k < 30; k++) { const m = (a + b) / 2; if (f(m) < 0) a = m; else b = m; }
+        return new Date(b);
+      }
+      t = t2; prev = cur;
+    }
+    return null;
+  }
+
+  // Когда Луна сменит знак
+  function nextMoonIngress(from) {
+    const H = 3600000; const sign0 = Math.floor(moonInfo(from).lon / 30);
+    let t = from.getTime();
+    for (let i = 0; i < 80; i++) {
+      const t2 = t + H;
+      if (Math.floor(moonInfo(new Date(t2)).lon / 30) !== sign0) {
+        let a = t, b = t2;
+        for (let k = 0; k < 20; k++) { const m = (a + b) / 2; if (Math.floor(moonInfo(new Date(m)).lon / 30) === sign0) a = m; else b = m; }
+        return { date: new Date(b), sign: (sign0 + 1) % 12 };
+      }
+      t = t2;
+    }
+    return null;
+  }
+
+  // Натальная карта
+  function chart({ date, time, timeKnown, tz, lat, lon }) {
+    const [y, m, dd] = date.split('-').map(Number);
+    const [hh, mi] = (timeKnown && time ? time : '12:00').split(':').map(Number);
+    const utc = new Date(Date.UTC(y, m - 1, dd, hh, mi) - (tz || 0) * 3600000);
+    const pos = positions(utc);
+    const res = { utc, planets: pos, timeKnown: !!timeKnown };
+    if (timeKnown && lat != null && lon != null) {
+      const a = angles(utc, lat, lon);
+      res.asc = a.asc; res.mc = a.mc;
+    }
+    return res;
+  }
+
+  const ASPECTS = [
+    { key: 'conj', angle: 0, name: 'Соединение', glyph: '☌', nature: 0 },
+    { key: 'sext', angle: 60, name: 'Секстиль', glyph: '⚹', nature: 1 },
+    { key: 'square', angle: 90, name: 'Квадратура', glyph: '□', nature: -1 },
+    { key: 'trine', angle: 120, name: 'Трин', glyph: '△', nature: 1 },
+    { key: 'opp', angle: 180, name: 'Оппозиция', glyph: '☍', nature: -1 },
   ];
 
-  // Рендер Каталога
-  const catalog = document.getElementById('zodiac-catalog');
-  const select1 = document.getElementById('sign-1');
-  const select2 = document.getElementById('sign-2');
-  
-  zodiacData.forEach((sign, index) => {
-    // Добавление в карточки
-    const card = document.createElement('div');
-    card.className = 'sign-card';
-    card.innerHTML = `
-      <div class="sign-header">
-        <div class="sign-info"><div class="sign-icon">${sign.icon}</div><div><h2 class="sign-name">${sign.name}</h2><div class="sign-dates">${sign.dates}</div></div></div>
-      </div>
-      <div class="sign-body">
-        <div class="sign-content">
-          <span class="tag">${sign.element}</span><span class="tag">${sign.planet}</span><br>
-          <div style="margin-top: 8px;">${sign.desc}</div>
-          <div class="trait-block"><div class="trait-title">🌑 Теневая сторона</div>${sign.shadow}</div>
-          <div class="trait-block"><div class="trait-title">✨ Скрытый талант</div>${sign.talent}</div>
-          <div class="trait-block"><div class="trait-title">🗝 Кармическая задача</div>${sign.karma}</div>
-        </div>
-      </div>`;
-    
-    card.querySelector('.sign-header').addEventListener('click', () => {
-      const isOpen = card.classList.contains('open');
-      document.querySelectorAll('.sign-card').forEach(c => { c.classList.remove('open'); c.querySelector('.sign-body').style.maxHeight = null; });
-      if (!isOpen) { 
-        card.classList.add('open'); 
-        const body = card.querySelector('.sign-body'); body.style.maxHeight = body.scrollHeight + "px"; 
-        if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged(); 
-      }
+  function aspectBetween(a, b, orb) {
+    let diff = Math.abs(norm(a - b)); if (diff > 180) diff = 360 - diff;
+    for (const asp of ASPECTS) {
+      const o = Math.abs(diff - asp.angle);
+      if (o <= orb) return { ...asp, orb: o, tight: 1 - o / orb };
+    }
+    return null;
+  }
+
+  const fmtDeg = lon => {
+    const inSign = lon % 30; const dg = Math.floor(inSign); const mn = Math.floor((inSign - dg) * 60);
+    return `${dg}°${String(mn).padStart(2, '0')}′`;
+  };
+
+  return { positions, angles, moonInfo, nextPhase, nextMoonIngress, chart, aspectBetween, ASPECTS, PLANET_KEYS, norm, fmtDeg, jd };
+})();
+
+// ═══════════════ БАЗА ЗНАНИЙ ═══════════════
+const ELEMENTS = [
+  { name: 'Огонь', icon: '🜂', color: '#FF8A4C' },
+  { name: 'Земля', icon: '🜃', color: '#8BC48A' },
+  { name: 'Воздух', icon: '🜁', color: '#8FB8FF' },
+  { name: 'Вода', icon: '🜄', color: '#6FD6D0' },
+];
+const QUALITIES = ['Кардинальный', 'Фиксированный', 'Мутабельный'];
+
+const SIGNS = [
+  { glyph: '♈', name: 'Овен', in: 'в Овне', dates: '21.03 — 19.04', ruler: 'Марс',
+    style: 'смело, прямо и импульсивно',
+    desc: 'Первый знак зодиака, искра творения. Овны — первопроходцы, чья энергия направлена вовне. Они не ждут подходящего момента, они его создают.',
+    strengths: ['Смелость', 'Инициатива', 'Честность', 'Энергичность'],
+    love: 'В любви Овен — завоеватель. Ему важны азарт, искренность и ощущение, что партнёр «стоит усилий». Скука убивает чувства быстрее, чем ссоры.',
+    career: 'Лучше всего проявляет себя там, где нужно начинать, рисковать и вести за собой: стартапы, спорт, продажи, экстренные службы, руководство проектами.',
+    shadow: 'Вспыльчивость, неспособность доводить дела до конца, эгоцентризм и жестокость в гневе.',
+    talent: 'Способность мгновенно мобилизоваться в кризис и зажигать толпу одной лишь идеей.',
+    karma: 'Научиться терпению и понять, что победа не всегда требует разрушения.',
+    stone: 'Алмаз, рубин', color: 'Алый', day: 'Вторник', body: 'Голова, лицо',
+    moon: 'Чувства вспыхивают быстро и так же быстро гаснут. Вам нужна свобода реагировать сразу, а лучшее лекарство от стресса — движение и действие.',
+    asc: 'Вас воспринимают энергичным, прямым и смелым человеком. Вы входите в комнату первым и не боитесь конкуренции.' },
+  { glyph: '♉', name: 'Телец', in: 'в Тельце', dates: '20.04 — 20.05', ruler: 'Венера',
+    style: 'неторопливо, чувственно и основательно',
+    desc: 'Фундамент зодиака. Тельцы превращают хаос в форму, оценивая мир через осязание и материю. Для них важны эстетика, комфорт и безопасность.',
+    strengths: ['Надёжность', 'Терпение', 'Вкус', 'Практичность'],
+    love: 'Телец любит медленно и всерьёз. Ему важны верность, телесная нежность и общий уют. Предательство прощает с огромным трудом.',
+    career: 'Финансы, недвижимость, дизайн, кулинария, бьюти-сфера, агробизнес — всё, где есть осязаемый результат и стабильный доход.',
+    shadow: 'Патологическое упрямство, собственничество, лень и страх перед любыми переменами.',
+    talent: 'Невероятная способность приумножать ресурсы и создавать красоту вокруг себя.',
+    karma: 'Отпустить привязанность к вещам и людям, принять изменчивость мира.',
+    stone: 'Изумруд, нефрит', color: 'Зелёный', day: 'Пятница', body: 'Шея, горло',
+    moon: 'Луна в экзальтации: эмоциональная устойчивость и потребность в комфорте. Вас успокаивают вкусная еда, природа, прикосновения и предсказуемость.',
+    asc: 'Спокойное, надёжное и приятное впечатление. В вас чувствуется основательность, хороший вкус и внутренняя сила.' },
+  { glyph: '♊', name: 'Близнецы', in: 'в Близнецах', dates: '21.05 — 20.06', ruler: 'Меркурий',
+    style: 'любопытно, гибко и через слова',
+    desc: 'Вечные ученики и проводники информации. Близнецы живут в ментальном потоке, легко адаптируются и способны вести пять дел одновременно.',
+    strengths: ['Остроумие', 'Гибкость', 'Коммуникабельность', 'Любознательность'],
+    love: 'Для Близнецов любовь начинается с разговора. Им нужен партнёр-собеседник, с которым не бывает скучно, и достаточно воздуха для личной свободы.',
+    career: 'Журналистика, маркетинг, преподавание, SMM, переводы, торговля, IT — сферы, где решают скорость мысли и умение общаться.',
+    shadow: 'Поверхностность, двуличие, нервозность и неспособность к глубокой концентрации.',
+    talent: 'Гениальный дар нетворкинга — они найдут общий язык с кем угодно.',
+    karma: 'Научиться фокусу и ответственности за сказанные слова.',
+    stone: 'Агат, цитрин', color: 'Жёлтый', day: 'Среда', body: 'Руки, плечи, лёгкие',
+    moon: 'Вы проживаете чувства через слова. Разговор, переписка и новая информация — ваш способ переварить эмоции.',
+    asc: 'Живой, общительный и любознательный образ. Вы легко заводите разговор и часто выглядите моложе своих лет.' },
+  { glyph: '♋', name: 'Рак', in: 'в Раке', dates: '21.06 — 22.07', ruler: 'Луна',
+    style: 'чутко, заботливо и через чувства',
+    desc: 'Хранители эмоций и памяти. Раки воспринимают мир через чувства. Их внешняя броня скрывает ранимое и заботливое ядро.',
+    strengths: ['Эмпатия', 'Преданность', 'Интуиция', 'Заботливость'],
+    love: 'Рак ищет «своего» человека и строит с ним гнездо. Ему важны безопасность, нежность и ощущение семьи. Ранить его легко, вернуть доверие — сложно.',
+    career: 'Психология, медицина, педагогика, гостеприимство, ресторанное дело, история и всё, что связано с заботой о людях.',
+    shadow: 'Эмоциональный шантаж, жизнь прошлым, обидчивость и позиция жертвы.',
+    talent: 'Глубочайшая эмпатия и способность создавать психологически безопасное пространство.',
+    karma: 'Перестать прятаться в панцирь и научиться эмоциональной сепарации от близких.',
+    stone: 'Жемчуг, лунный камень', color: 'Серебристый', day: 'Понедельник', body: 'Грудь, желудок',
+    moon: 'Луна в своём знаке: глубокая чувствительность, память сердца, сильная привязанность к дому и близким.',
+    asc: 'Мягкость, осторожность и забота с первого взгляда. Вы сначала присматриваетесь к людям, а потом раскрываетесь.' },
+  { glyph: '♌', name: 'Лев', in: 'во Льве', dates: '23.07 — 22.08', ruler: 'Солнце',
+    style: 'ярко, щедро и с достоинством',
+    desc: 'Центр притяжения. Львы пришли в этот мир, чтобы сиять, творить и любить. Они обладают природным благородством и колоссальным запасом витальности.',
+    strengths: ['Щедрость', 'Харизма', 'Творчество', 'Верность'],
+    love: 'Лев любит широко и красиво: жесты, подарки, признания. Взамен ему нужны восхищение и верность. Равнодушие ранит его сильнее, чем критика.',
+    career: 'Сцена, медиа, управление, событийная индустрия, искусство, преподавание — везде, где он может быть заметен и вдохновлять.',
+    shadow: 'Гордыня, зависимость от лести, деспотизм и непереносимость критики.',
+    talent: 'Способность вдохновлять одним своим присутствием и абсолютная творческая свобода.',
+    karma: 'Понять, что истинное величие не требует постоянных аплодисментов.',
+    stone: 'Рубин, янтарь', color: 'Золотой', day: 'Воскресенье', body: 'Сердце, спина',
+    moon: 'Вам важно, чтобы ваши чувства видели и ценили. Тепло, щедрость и потребность в признании — ваш эмоциональный стиль.',
+    asc: 'Яркое, заметное появление. Вы излучаете уверенность и притягиваете взгляды, даже когда молчите.' },
+  { glyph: '♍', name: 'Дева', in: 'в Деве', dates: '23.08 — 22.09', ruler: 'Меркурий',
+    style: 'аккуратно, практично и вдумчиво',
+    desc: 'Алхимики зодиака. Девы фильтруют, анализируют и улучшают всё, к чему прикасаются. Смысл жизни для них — в служении и наведении порядка.',
+    strengths: ['Аналитичность', 'Ответственность', 'Скромность', 'Трудолюбие'],
+    love: 'Дева показывает любовь делами: помнит мелочи, заботится, решает проблемы. Ей нужен надёжный партнёр, который ценит её усилия и не высмеивает тревоги.',
+    career: 'Медицина, аналитика, редактура, бухгалтерия, нутрициология, ремесло, контроль качества — всё, где важна точность.',
+    shadow: 'Занудство, мелочность, критиканство и разрушительный перфекционизм.',
+    talent: 'Системное мышление и способность решать проблемы, которые другие считают нерешаемыми.',
+    karma: 'Принять несовершенство мира и научиться отдыхать без чувства вины.',
+    stone: 'Сапфир, яшма', color: 'Бежевый', day: 'Среда', body: 'Кишечник, нервная система',
+    moon: 'Вы успокаиваетесь, наводя порядок. Забота проявляется в делах, а тревога — в контроле мелочей.',
+    asc: 'Аккуратность, сдержанность и внимание к деталям. Вас считают умным, собранным и надёжным.' },
+  { glyph: '♎', name: 'Весы', in: 'в Весах', dates: '23.09 — 22.10', ruler: 'Венера',
+    style: 'дипломатично, эстетично и в паре с другими',
+    desc: 'Искатели баланса. Весы оценивают мир через призму эстетики и отношений. Они отражают других людей, стремясь к гармонии во всём.',
+    strengths: ['Дипломатия', 'Обаяние', 'Справедливость', 'Чувство стиля'],
+    love: 'Весы — знак партнёрства: им по-настоящему хорошо вдвоём. Ценят красивые ухаживания, вежливость и равенство. Грубость мгновенно охлаждает их.',
+    career: 'Дизайн, мода, право, дипломатия, HR, искусство, консалтинг — всё, где нужен вкус и умение договариваться.',
+    shadow: 'Пассивная агрессия, нерешительность, лицемерие ради сохранения «худого мира».',
+    talent: 'Талант дипломата, способного примирить злейших врагов и создать безупречный стиль.',
+    karma: 'Научиться делать выбор и говорить «нет», даже если это нарушит покой.',
+    stone: 'Опал, розовый кварц', color: 'Пудрово-розовый', day: 'Пятница', body: 'Почки, поясница',
+    moon: 'Эмоциональное равновесие зависит от гармонии в отношениях. Конфликты выбивают из колеи, а красота лечит.',
+    asc: 'Обаяние, вежливость и стиль. Вы умеете сглаживать углы и располагать к себе людей.' },
+  { glyph: '♏', name: 'Скорпион', in: 'в Скорпионе', dates: '23.10 — 21.11', ruler: 'Плутон и Марс',
+    style: 'глубоко, страстно и без полумер',
+    desc: 'Энергия трансформации. Скорпионы живут на глубине, где нет полутонов. Они видят истинные мотивы людей и обладают гипнотическим влиянием.',
+    strengths: ['Проницательность', 'Стойкость', 'Страстность', 'Преданность'],
+    love: 'Скорпион любит всем существом и требует того же. Ему нужны глубина, честность и полное доверие. Измену не прощает почти никогда.',
+    career: 'Психотерапия, расследования, медицина, финансы и инвестиции, исследования, кризис-менеджмент.',
+    shadow: 'Мстительность, ревность, паранойя и склонность к саморазрушению.',
+    talent: 'Способность возрождаться из пепла после тотального краха и исцелять чужие травмы.',
+    karma: 'Трансформировать внутреннюю тьму в свет, отпустить жажду контроля.',
+    stone: 'Топаз, гранат', color: 'Бордовый', day: 'Вторник', body: 'Органы малого таза',
+    moon: 'Луна в падении: интенсивные, глубокие чувства, которые вы бережно скрываете. Доверие даётся тяжело, но навсегда.',
+    asc: 'Магнетизм и закрытость. Взгляд, который видит насквозь; людям хочется вас разгадать.' },
+  { glyph: '♐', name: 'Стрелец', in: 'в Стрельце', dates: '22.11 — 21.12', ruler: 'Юпитер',
+    style: 'широко, оптимистично и в поиске смысла',
+    desc: 'Философы и авантюристы. Стрельцы целятся в бесконечность, их питает расширение горизонтов — через путешествия, знания и духовный поиск.',
+    strengths: ['Оптимизм', 'Щедрость', 'Честность', 'Широта взглядов'],
+    love: 'Стрельцу нужен партнёр-попутчик: вместе путешествовать, спорить о смысле жизни и смеяться. Ревность и контроль заставляют его бежать.',
+    career: 'Образование, туризм, издательство, право, международный бизнес, спорт, блогинг — масштаб и свобода.',
+    shadow: 'Категоричность, бестактность под маской честности и нежелание брать обязательства.',
+    talent: 'Масштабное видение, неиссякаемый оптимизм и невероятная удачливость.',
+    karma: 'Осознать, что истина многогранна, а свобода — это не побег от ответственности.',
+    stone: 'Бирюза, топаз', color: 'Фиолетовый', day: 'Четверг', body: 'Бёдра, печень',
+    moon: 'Вам нужен простор и смысл. Путешествия, юмор и вера в лучшее помогают пережить любые бури.',
+    asc: 'Открытость, оптимизм и жажда приключений. Вы вдохновляете своей лёгкостью и прямотой.' },
+  { glyph: '♑', name: 'Козерог', in: 'в Козероге', dates: '22.12 — 19.01', ruler: 'Сатурн',
+    style: 'сдержанно, ответственно и на долгую перспективу',
+    desc: 'Стратеги и строители. Козероги видят цель и методично, превозмогая препятствия, идут к ней. Время и дисциплина — их главные союзники.',
+    strengths: ['Дисциплина', 'Целеустремлённость', 'Надёжность', 'Выносливость'],
+    love: 'Козерог раскрывается медленно, но строит отношения на десятилетия. Любовь для него — это ответственность и забота делом, а не громкие слова.',
+    career: 'Управление, госслужба, финансы, инженерия, архитектура, собственный бизнес — там, где ценятся статус и долгосрочный результат.',
+    shadow: 'Холодность, безжалостность к себе и другим, использование людей ради выгоды.',
+    talent: 'Невероятная выносливость и способность выстраивать нерушимые империи.',
+    karma: 'Открыть сердце и понять, что не всё в жизни измеряется достижениями.',
+    stone: 'Гранат, оникс', color: 'Тёмно-коричневый', day: 'Суббота', body: 'Кости, колени, зубы',
+    moon: 'Луна в изгнании: сдержанность и самоконтроль. Вы привыкли справляться сами — важно разрешать себе слабость.',
+    asc: 'Серьёзность, собранность и зрелость. Вас воспринимают как человека, которому можно доверить дело.' },
+  { glyph: '♒', name: 'Водолей', in: 'в Водолее', dates: '20.01 — 18.02', ruler: 'Уран и Сатурн',
+    style: 'независимо, нестандартно и с опорой на идеи',
+    desc: 'Визионеры из будущего. Водолеи ломают старые парадигмы во имя свободы и прогресса. Они ценят интеллект, дружбу и независимость.',
+    strengths: ['Оригинальность', 'Независимость', 'Гуманизм', 'Изобретательность'],
+    love: 'Водолею нужен друг и единомышленник, а не надзиратель. Он верен, если чувствует свободу, и сбегает от собственничества и драм.',
+    career: 'IT, наука, инновации, социальные проекты, астрология, авиация, медиа — всё новое и непривычное.',
+    shadow: 'Отстранённость, эмоциональная холодность, бунт ради бунта.',
+    talent: 'Гениальные озарения и способность объединять разных людей ради большой идеи.',
+    karma: 'Научиться близости с одним конкретным человеком, а не только с человечеством.',
+    stone: 'Аметист, аквамарин', color: 'Электрик-синий', day: 'Суббота', body: 'Голени, лодыжки, сосуды',
+    moon: 'Вы наблюдаете за своими эмоциями немного со стороны. Нужны свобода, друзья и пространство для себя.',
+    asc: 'Необычность, независимость, дружелюбная отстранённость. Вы выделяетесь из толпы, даже не стараясь.' },
+  { glyph: '♓', name: 'Рыбы', in: 'в Рыбах', dates: '19.02 — 20.03', ruler: 'Нептун и Юпитер',
+    style: 'интуитивно, мягко и с воображением',
+    desc: 'Мистики и мечтатели. Рыбы вбирают в себя опыт всего зодиака. У них нет жёстких границ — они растворяются в искусстве, музыке и чужой боли.',
+    strengths: ['Сострадание', 'Воображение', 'Интуиция', 'Чуткость'],
+    love: 'Рыбы любят самоотверженно и романтично, часто идеализируя партнёра. Им важна душевная близость и мягкость; грубая реальность ранит их.',
+    career: 'Искусство, музыка, кино, медицина и помогающие профессии, психология, благотворительность, духовные практики.',
+    shadow: 'Эскапизм, склонность к зависимостям и синдром мученика.',
+    talent: 'Связь с Высшим, интуиция уровня медиума и способность создавать шедевры.',
+    karma: 'Научиться заземляться, выстраивать границы и не спасать тех, кто об этом не просит.',
+    stone: 'Аквамарин, аметист', color: 'Морская волна', day: 'Четверг', body: 'Стопы, лимфа',
+    moon: 'Бездонная эмпатия и тонкая интуиция. Вы впитываете чужие настроения — важно восстанавливаться в тишине и творчестве.',
+    asc: 'Мечтательность, мягкость и тонкость. Вы кажетесь загадочным и очень чутким человеком.' },
+];
+SIGNS.forEach((s, i) => { s.id = i; s.element = i % 4; s.quality = i % 3; s.polarity = i % 2 === 0 ? 'Мужской (Ян)' : 'Женский (Инь)'; });
+
+const PLANETS = {
+  sun:     { name: 'Солнце', glyph: '☉', natal: 'ядро личности, воля и то, как вы сияете' },
+  moon:    { name: 'Луна', glyph: '☽', natal: 'эмоции, потребность в безопасности и способ восстанавливаться' },
+  mercury: { name: 'Меркурий', glyph: '☿', natal: 'ум, речь и способ учиться' },
+  venus:   { name: 'Венера', glyph: '♀', natal: 'любовь, вкус и то, что приносит удовольствие' },
+  mars:    { name: 'Марс', glyph: '♂', natal: 'энергия, желание и способ добиваться своего' },
+  jupiter: { name: 'Юпитер', glyph: '♃', natal: 'рост, удача и вера в лучшее' },
+  saturn:  { name: 'Сатурн', glyph: '♄', natal: 'обязательства, страхи и путь к зрелости' },
+  uranus:  { name: 'Уран', glyph: '♅', natal: 'свобода и тяга к переменам (поколенческая планета)' },
+  neptune: { name: 'Нептун', glyph: '♆', natal: 'мечты, вдохновение и иллюзии (поколенческая планета)' },
+};
+
+const HOUSES = [
+  { t: 'Личность и тело', d: 'Фокус на вас самих: самочувствие, внешний вид, личные инициативы.' },
+  { t: 'Деньги и ценности', d: 'Финансы, покупки, самооценка и всё, что даёт ощущение опоры.' },
+  { t: 'Общение и дорога', d: 'Переписка, звонки, короткие поездки, учёба, братья и сёстры.' },
+  { t: 'Дом и корни', d: 'Семья, жильё, прошлое, потребность в уюте и уединении.' },
+  { t: 'Любовь и творчество', d: 'Романтика, удовольствия, дети, хобби и самовыражение.' },
+  { t: 'Работа и здоровье', d: 'Рутина, обязанности, режим дня и забота о теле.' },
+  { t: 'Партнёрство', d: 'Отношения один на один, договоры, переговоры, брак.' },
+  { t: 'Трансформация', d: 'Общие деньги, кредиты, интимность и глубокие перемены.' },
+  { t: 'Горизонты', d: 'Путешествия, обучение, философия, контакты с иностранцами.' },
+  { t: 'Карьера и статус', d: 'Цели, репутация, руководство и публичность.' },
+  { t: 'Друзья и мечты', d: 'Сообщества, единомышленники и планы на будущее.' },
+  { t: 'Тишина и подсознание', d: 'Отдых, уединение, интуиция и завершение циклов.' },
+];
+
+// Транзиты: что приносит транзитная планета
+const TRANSIT = {
+  sun:     { does: 'Солнце добавляет ясности и жизненной силы', good: 'Хороший момент проявить себя и взять инициативу.', hard: 'Не тратьте силы на борьбу самолюбий — выбирайте главное.' },
+  moon:    { does: 'Луна задаёт эмоциональный тон дня', good: 'Доверяйте ощущениям — сегодня они точны.', hard: 'Эмоции могут перехлёстывать: не принимайте решений на пике чувств.' },
+  mercury: { does: 'Меркурий активирует мысли и разговоры', good: 'Удачно для переговоров, писем, учёбы и планирования.', hard: 'Перепроверяйте сообщения и договорённости — возможны недопонимания.' },
+  venus:   { does: 'Венера приносит мягкость, симпатию и удовольствие', good: 'Время для свиданий, красоты, примирения и приятных покупок.', hard: 'Не пытайтесь «купить» спокойствие — избегайте лишних трат и сладких иллюзий.' },
+  mars:    { does: 'Марс даёт заряд энергии и напора', good: 'Сил хватит на спорт и смелые шаги.', hard: 'Риск конфликтов и спешки: выдохните, прежде чем отвечать.' },
+  jupiter: { does: 'Юпитер расширяет возможности и дарит удачу', good: 'Просите, предлагайте, учитесь — удача на вашей стороне.', hard: 'Осторожно с излишествами и громкими обещаниями.' },
+  saturn:  { does: 'Сатурн проверяет на прочность и требует дисциплины', good: 'Дисциплина сегодня окупается — закладывайте фундамент.', hard: 'Может навалиться усталость или ограничения; двигайтесь шаг за шагом.' },
+};
+const NATAL_AREA = {
+  sun: 'вашу волю и самоощущение', moon: 'ваш эмоциональный мир', mercury: 'ваше мышление и общение',
+  venus: 'ваши отношения и финансы', mars: 'вашу энергию и амбиции', asc: 'ваш образ и самочувствие',
+};
+const NATAL_LABEL = { sun: 'ваше Солнце', moon: 'вашу Луну', mercury: 'ваш Меркурий', venus: 'вашу Венеру', mars: 'вашего Марса', asc: 'ваш Асцендент' };
+const ASPECT_DESC = {
+  conj: 'Соединение многократно усиливает эту тему.',
+  sext: 'Секстиль открывает возможность — её важно заметить и использовать.',
+  trine: 'Трин даёт лёгкость: многое складывается само.',
+  square: 'Квадратура создаёт трение, которое подталкивает к действию.',
+  opp: 'Оппозиция проявляет тему через других людей и требует баланса.',
+};
+
+const PHASES = [
+  { name: 'Новолуние', emoji: '🌑', advice: 'Время намерений. Запишите цели, загадайте желание, не перегружайте себя — энергия только набирается.' },
+  { name: 'Растущий серп', emoji: '🌒', advice: 'Начинайте новое, собирайте ресурсы и людей. Хорошо для первых шагов и знакомств.' },
+  { name: 'Первая четверть', emoji: '🌓', advice: 'Момент решений и преодоления. Препятствия сейчас — проверка серьёзности намерений.' },
+  { name: 'Растущая Луна', emoji: '🌔', advice: 'Дорабатывайте и корректируйте. Энергии много — вкладывайте её в начатое, а не распыляйтесь.' },
+  { name: 'Полнолуние', emoji: '🌕', advice: 'Кульминация эмоций и проявление результатов. Завершайте, благодарите, избегайте ссор и резких решений.' },
+  { name: 'Убывающая Луна', emoji: '🌖', advice: 'Делитесь знанием, анализируйте итоги, отдавайте долги. Хорошо для обучения других.' },
+  { name: 'Последняя четверть', emoji: '🌗', advice: 'Отпускайте лишнее: расхламление, завершение, отказ от того, что не работает.' },
+  { name: 'Убывающий серп', emoji: '🌘', advice: 'Отдых и восстановление. Подводите итоги цикла, больше спите, меньше планируйте.' },
+];
+
+// Луна в знаке — практические рекомендации на день
+const MOON_DAY = [
+  { do: 'Начинать дела, тренироваться, действовать решительно', avoid: 'Спорить сгоряча и рисковать здоровьем', good: 'спорт, старт проектов, смелые решения' },
+  { do: 'Заниматься финансами, телом, уютом и вкусной едой', avoid: 'Резко менять планы и переедать', good: 'покупки, бьюти-процедуры, денежные дела' },
+  { do: 'Общаться, учиться, писать и договариваться', avoid: 'Сплетничать и распыляться', good: 'переговоры, поездки, учёба, соцсети' },
+  { do: 'Побыть дома и позаботиться о близких', avoid: 'Принимать всё близко к сердцу', good: 'уборка, семейные дела, готовка' },
+  { do: 'Творить, заявлять о себе, радоваться жизни', avoid: 'Требовать внимания и хвастаться', good: 'свидания, творчество, выступления' },
+  { do: 'Разбирать дела, планировать, заботиться о здоровье', avoid: 'Критиковать себя и других', good: 'уборка, визиты к врачу, рутина' },
+  { do: 'Мириться, ходить на встречи, наводить красоту', avoid: 'Бесконечно откладывать решения', good: 'свидания, стрижка, искусство' },
+  { do: 'Исследовать, работать с глубокими темами', avoid: 'Ревновать, мстить и контролировать', good: 'психология, исследования, финансы' },
+  { do: 'Учиться, путешествовать, мечтать масштабно', avoid: 'Обещать больше, чем можете', good: 'путешествия, обучение, публикации' },
+  { do: 'Строить планы, решать карьерные вопросы', avoid: 'Быть слишком строгим к себе', good: 'работа, документы, долгие цели' },
+  { do: 'Встречаться с друзьями, пробовать новое', avoid: 'Бунтовать без причины', good: 'нетворкинг, технологии, эксперименты' },
+  { do: 'Отдыхать, творить, медитировать', avoid: 'Подписывать важные бумаги и злоупотреблять алкоголем', good: 'искусство, отдых, духовные практики' },
+];
+
+// ═══ НУМЕРОЛОГИЯ ═══
+const NUMEROLOGY = {
+  1: { t: 'Лидер', d: 'Независимость, инициатива и сильная воля. Вы пришли прокладывать новые пути и учиться доверять себе. Тень — упрямство и одиночество «на вершине».' },
+  2: { t: 'Дипломат', d: 'Чуткость, партнёрство и умение слышать. Ваша сила — в сотрудничестве и тонкой интуиции. Тень — зависимость от чужого мнения.' },
+  3: { t: 'Творец', d: 'Самовыражение, лёгкость, обаяние и талант к слову. Вы несёте радость. Тень — распыление и поверхностность.' },
+  4: { t: 'Строитель', d: 'Порядок, труд, надёжность и практичность. Вы создаёте фундамент, на который могут опереться другие. Тень — ригидность и страх перемен.' },
+  5: { t: 'Искатель', d: 'Свобода, перемены и жажда опыта. Вы учитесь через движение и приключения. Тень — непостоянство и импульсивность.' },
+  6: { t: 'Хранитель', d: 'Любовь, ответственность, семья и красота. Вы — опора для близких. Тень — гиперопека и жертвенность.' },
+  7: { t: 'Мудрец', d: 'Анализ, глубина, духовный поиск. Вам важно докопаться до сути. Тень — замкнутость и недоверие к людям.' },
+  8: { t: 'Властитель', d: 'Деньги, власть, достижения и управление ресурсами. Вы умеете превращать идеи в капитал. Тень — материализм и жёсткость.' },
+  9: { t: 'Гуманист', d: 'Сострадание, служение и широта души. Вы завершаете циклы и помогаете миру. Тень — растворение в чужих проблемах.' },
+  11: { t: 'Мастер-интуит', d: 'Мастер-число. Вдохновение, озарения и роль проводника для других. Высокая чувствительность требует заземления и бережности к себе.' },
+  22: { t: 'Мастер-строитель', d: 'Мастер-число. Способность воплощать масштабные идеи в материальном мире. Огромный потенциал и такая же ответственность.' },
+  33: { t: 'Мастер-целитель', d: 'Мастер-число. Безусловная любовь, служение и учительство. Путь через сострадание к себе и другим.' },
+};
+const PERSONAL_DAY = {
+  1: 'День начинаний: проявляйте инициативу, запускайте новое.', 2: 'День сотрудничества: договаривайтесь, слушайте, будьте мягче.',
+  3: 'День общения и творчества: делитесь идеями, веселитесь.', 4: 'День работы: порядок, планы, рутина — всё окупится.',
+  5: 'День перемен: будьте гибки, ловите неожиданные шансы.', 6: 'День семьи и заботы: дом, близкие, красота.',
+  7: 'День уединения: анализ, учёба, тишина, интуиция.', 8: 'День денег и власти: решайте деловые вопросы.',
+  9: 'День завершений: закрывайте хвосты, прощайте, отпускайте.',
+};
+const PERSONAL_YEAR = {
+  1: 'Год новых начал — сейте семена на 9 лет вперёд.', 2: 'Год терпения и партнёрства — отношения важнее скорости.',
+  3: 'Год самовыражения, общения и творчества.', 4: 'Год труда и фундамента — дисциплина приносит плоды.',
+  5: 'Год перемен, переездов и свободы.', 6: 'Год семьи, любви и ответственности.',
+  7: 'Год внутренней работы, обучения и переосмысления.', 8: 'Год карьеры, денег и результатов.',
+  9: 'Год завершения цикла — освобождайте место для нового.',
+};
+
+// ═══ СОВМЕСТИМОСТЬ ═══
+const ELEMENT_PAIRS = {
+  '0-0': { s: [90, 78, 66], d: 'Двойной Огонь: много страсти, азарта и соперничества. Вы зажигаете друг друга, но важно не сжечь всё дотла — учитесь уступать.' },
+  '0-1': { s: [56, 60, 80], d: 'Огонь даёт идеи, Земля — форму. Один торопит, другой тормозит; когда вы уважаете темп друг друга, получается прочный и успешный союз.' },
+  '0-2': { s: [88, 92, 78], d: 'Воздух раздувает Огонь: лёгкость, юмор, вдохновение и общие планы. Одна из самых живых и весёлых комбинаций.' },
+  '0-3': { s: [62, 54, 50], d: 'Пар и туман: чувства Воды и импульс Огня притягиваются, но легко ранят друг друга. Нужны бережность и много терпения.' },
+  '1-1': { s: [76, 80, 92], d: 'Надёжность, общие ценности и совместное строительство жизни. Главный риск — рутина: не забывайте о романтике.' },
+  '1-2': { s: [55, 64, 72], d: 'Практик и мыслитель. Воздух приносит идеи, Земля их приземляет. Придётся учиться говорить на одном языке.' },
+  '1-3': { s: [88, 82, 85], d: 'Плодородная почва: Вода питает, Земля даёт опору. Глубокая, заботливая и устойчивая связь.' },
+  '2-2': { s: [72, 92, 70], d: 'Интеллектуальная искра, бесконечные разговоры и свобода. Важно не уходить от чувств в головные конструкции.' },
+  '2-3': { s: [58, 62, 60], d: 'Разум и чувства. Воздух может казаться холодным, Вода — слишком эмоциональной; мостом становится искренность.' },
+  '3-3': { s: [92, 85, 64], d: 'Глубокое эмоциональное слияние и понимание без слов. Риск — утонуть в чувствах и взаимных обидах.' },
+};
+const DISTANCE = [
+  { s: [72, 88, 78], t: 'Один знак', d: 'Эффект зеркала. Вы отлично понимаете друг друга, но общие недостатки удваиваются. Нужны разные роли в паре.' },
+  { s: [58, 55, 72], t: 'Соседние знаки', d: 'Вы говорите на разных языках, но многому учитесь друг у друга. Один всегда немного «впереди» по опыту.' },
+  { s: [84, 94, 88], t: 'Секстиль', d: 'Дружественные стихии. Вы поддерживаете друг друга без потери индивидуальности — союз двух союзников.' },
+  { s: [86, 46, 54], t: 'Квадратура', d: 'Зона напряжения. Искры летят во все стороны: страсть велика, но конфликты неизбежны. Рост — через компромисс.' },
+  { s: [95, 92, 84], t: 'Трин', d: 'Одна стихия — гармония и естественность. Вы словно созданы друг для друга; главное — не заскучать в комфорте.' },
+  { s: [44, 58, 63], t: 'Квиконс', d: 'Кармическая связь. Вы совершенно разные, но вас тянет друг к другу, чтобы пройти непростой, но важный урок.' },
+  { s: [82, 70, 90], t: 'Оппозиция', d: 'Два полюса одного магнита. Полные противоположности, которые закрывают слепые зоны друг друга.' },
+];
+const SYN_PAIRS = {
+  'moon-sun':   { h: 'Классический признак совместимости: «солнце» одного освещает «луну» другого — вы интуитивно поддерживаете друг друга.', t: 'Воля одного задевает чувства другого. Не обесценивайте эмоции партнёра.' },
+  'mars-venus': { h: 'Сильное взаимное влечение и романтическая химия.', t: 'Притяжение есть, но желания и ожидания расходятся — страсть легко переходит в ссоры.' },
+  'moon-moon':  { h: 'Похожие эмоциональные потребности: вам уютно и спокойно вместе.', t: 'Разные эмоциональные ритмы — учитесь понимать, как другой восстанавливается.' },
+  'venus-venus':{ h: 'Общие вкусы, радости и представления о красоте и любви.', t: 'Разные «языки любви»: то, что приятно одному, другому кажется лишним.' },
+  'mars-mars':  { h: 'Вы действуете в одном ритме — сильная команда.', t: 'Борьба за лидерство и вспышки соперничества.' },
+  'sun-sun':    { h: 'Похожие жизненные цели — вы понимаете мотивы друг друга.', t: 'Два центра притяжения: постоянный вопрос «кто ведёт?».' },
+  'mercury-mercury': { h: 'Понимание с полуслова и лёгкость общения.', t: 'Разный стиль мышления — споры по мелочам.' },
+  'sun-venus':  { h: 'Взаимная симпатия, восхищение и нежность.', t: 'Мелкие разочарования во вкусах и ожиданиях.' },
+  'moon-venus': { h: 'Тёплая, уютная связь, полная заботы.', t: 'Сентиментальные недоразумения и обиды.' },
+  'mars-sun':   { h: 'Вы заряжаете друг друга энергией и смелостью.', t: 'Столкновение самолюбий и соперничество.' },
+  'mars-moon':  { h: 'Страсть и сильная эмоциональная вовлечённость.', t: 'Эмоциональные вспышки и обидчивость.' },
+  'mercury-venus': { h: 'Приятно разговаривать: комплименты, флирт, общие интересы.', t: 'Слова иногда ранят сильнее, чем хотелось бы.' },
+  'mercury-sun':{ h: 'Вы хорошо понимаете идеи и цели друг друга.', t: 'Критика воспринимается слишком лично.' },
+  'mercury-moon': { h: 'Легко говорить о чувствах — вас слышат.', t: 'Логика одного сталкивается с эмоциями другого.' },
+  'mars-mercury': { h: 'Живые дискуссии, общий драйв к действиям.', t: 'Острые споры, резкие слова.' },
+  'jupiter-sun':{ h: 'Вы приносите друг другу удачу и веру в себя.', t: 'Склонность к излишествам и завышенным ожиданиям.' },
+  'jupiter-moon': { h: 'Щедрость, великодушие и эмоциональная поддержка.', t: 'Чрезмерная опека или обещания, которые не выполняются.' },
+  'jupiter-venus': { h: 'Радость, праздник и щедрость в паре.', t: 'Вместе легко потерять меру в удовольствиях.' },
+  'saturn-sun': { h: 'Стабильность и серьёзность намерений — связь «надолго».', t: 'Один может ограничивать или критиковать другого.' },
+  'moon-saturn':{ h: 'Верность и ощущение надёжной опоры.', t: 'Эмоциональная холодность, ощущение, что чувства не нужны.' },
+  'saturn-venus': { h: 'Преданность и чувство долга в любви.', t: 'Сдержанность, недостаток нежности.' },
+};
+const SYN_ROLES = { sun: 'самовыражение', moon: 'эмоции', mercury: 'мышление', venus: 'нежность', mars: 'страсть', jupiter: 'вера', saturn: 'обязательства' };
+
+const CITIES = [
+  ['Москва', 55.75, 37.62, 3], ['Санкт-Петербург', 59.94, 30.31, 3], ['Новосибирск', 55.03, 82.92, 7], ['Екатеринбург', 56.84, 60.6, 5],
+  ['Казань', 55.79, 49.12, 3], ['Нижний Новгород', 56.33, 44.0, 3], ['Челябинск', 55.16, 61.4, 5], ['Самара', 53.2, 50.15, 4],
+  ['Омск', 54.99, 73.37, 6], ['Ростов-на-Дону', 47.24, 39.71, 3], ['Уфа', 54.74, 55.97, 5], ['Красноярск', 56.01, 92.85, 7],
+  ['Пермь', 58.01, 56.25, 5], ['Воронеж', 51.67, 39.18, 3], ['Волгоград', 48.71, 44.51, 3], ['Краснодар', 45.04, 38.98, 3],
+  ['Сочи', 43.6, 39.73, 3], ['Саратов', 51.53, 46.03, 4], ['Тюмень', 57.15, 65.53, 5], ['Иркутск', 52.29, 104.28, 8],
+  ['Хабаровск', 48.48, 135.08, 10], ['Владивосток', 43.12, 131.89, 10], ['Якутск', 62.03, 129.73, 9], ['Калининград', 54.71, 20.51, 2],
+  ['Мурманск', 68.97, 33.08, 3], ['Симферополь', 44.95, 34.1, 3], ['Минск', 53.9, 27.57, 3], ['Киев', 50.45, 30.52, 2],
+  ['Харьков', 49.99, 36.23, 2], ['Одесса', 46.48, 30.72, 2], ['Алматы', 43.24, 76.89, 5], ['Астана', 51.17, 71.45, 5],
+  ['Шымкент', 42.32, 69.59, 5], ['Караганда', 49.8, 73.1, 5], ['Кызылорда', 44.85, 65.51, 5], ['Актобе', 50.28, 57.17, 5],
+  ['Ташкент', 41.31, 69.24, 5], ['Бишкек', 42.87, 74.59, 6], ['Душанбе', 38.56, 68.77, 5], ['Баку', 40.41, 49.87, 4],
+  ['Ереван', 40.18, 44.51, 4], ['Тбилиси', 41.72, 44.79, 4], ['Кишинёв', 47.01, 28.86, 2], ['Рига', 56.95, 24.11, 2],
+  ['Вильнюс', 54.69, 25.28, 2], ['Таллин', 59.44, 24.75, 2], ['Варшава', 52.23, 21.01, 1], ['Берлин', 52.52, 13.4, 1],
+  ['Прага', 50.08, 14.44, 1], ['Амстердам', 52.37, 4.9, 1], ['Париж', 48.86, 2.35, 1], ['Рим', 41.9, 12.5, 1],
+  ['Мадрид', 40.42, -3.7, 1], ['Лондон', 51.51, -0.13, 0], ['Стамбул', 41.01, 28.98, 3], ['Тель-Авив', 32.08, 34.78, 2],
+  ['Дубай', 25.2, 55.27, 4], ['Бангкок', 13.75, 100.5, 7], ['Денпасар (Бали)', -8.65, 115.22, 8], ['Пекин', 39.9, 116.4, 8],
+  ['Токио', 35.68, 139.69, 9], ['Нью-Йорк', 40.71, -74.0, -5], ['Лос-Анджелес', 34.05, -118.24, -8], ['Торонто', 43.65, -79.38, -5],
+];
+
+// ═══════════════ ТАРО: 78 КАРТ ═══════════════
+const MAJOR = [
+  ['Шут', '✧', 'Новое начало, спонтанность, прыжок веры. Вы на пороге приключения — доверьтесь пути, даже не зная всех деталей.', 'Безрассудство, наивность или страх сделать шаг. Проверьте, не путаете ли вы свободу с безответственностью.', 1],
+  ['Маг', '∞', 'Воля, мастерство, все ресурсы в ваших руках. Время действовать: у вас есть всё, чтобы превратить идею в реальность.', 'Манипуляции, распыление, нереализованный потенциал. Кто-то играет нечестно — возможно, вы сами с собой.', 1],
+  ['Верховная Жрица', '☾', 'Интуиция, тайное знание, внутренний голос. Ответ уже внутри вас — остановитесь и прислушайтесь.', 'Игнорирование интуиции, скрытые мотивы, оторванность от себя. Не всё сказано вслух.', 0],
+  ['Императрица', '♀', 'Изобилие, плодородие, забота и красота. Период роста и созидания — творите, заботьтесь, наслаждайтесь.', 'Творческий застой, зависимость, забота в ущерб себе. Пора наполнить собственную чашу.', 1],
+  ['Император', '♔', 'Структура, власть, порядок и ответственность. Возьмите ситуацию под контроль и выстройте правила.', 'Деспотизм, жёсткость или потеря контроля. Власть без мудрости разрушает.', 1],
+  ['Иерофант', '⚜', 'Традиции, наставник, духовные устои. Обратитесь к проверенным путям или к мудрому человеку.', 'Бунт против правил, пустые догмы, ложные авторитеты. Ищите собственный путь.', 0],
+  ['Влюблённые', '♡', 'Любовь, союз, важный выбор по велению сердца. Гармония ценностей и глубокая связь.', 'Разлад, неверный выбор, несовпадение ценностей. Честно спросите себя, чего вы хотите.', 1],
+  ['Колесница', '➶', 'Победа, целеустремлённость, движение вперёд. Удержите противоположные силы под контролем — и цель ваша.', 'Потеря направления, агрессия, препятствия. Вы тянете в разные стороны.', 1],
+  ['Сила', '♌', 'Внутренняя сила, мягкость, укрощение страстей. Настоящая мощь — в терпении и сострадании.', 'Неуверенность, слабость, вспышки гнева. Вы сомневаетесь в себе сильнее, чем стоит.', 1],
+  ['Отшельник', '✦', 'Уединение, поиск истины, мудрость. Шаг назад от шума поможет найти ответ.', 'Изоляция, одиночество, бегство от людей. Уединение превратилось в стену.', 0],
+  ['Колесо Фортуны', '☸', 'Поворот судьбы, циклы, удача. Всё меняется — и сейчас в вашу пользу.', 'Невезение, сопротивление переменам. Цикл идёт вниз — переждите и сделайте выводы.', 1],
+  ['Справедливость', '⚖', 'Честность, закон причины и следствия, справедливое решение. Вы получаете то, что посеяли.', 'Несправедливость, уклонение от ответственности, нечестная сделка.', 0],
+  ['Повешенный', '⟁', 'Пауза, взгляд под другим углом, жертва ради большего. Отпустите контроль — и увидите новое.', 'Застой, бессмысленная жертва, промедление. Пора перестать ждать.', 0],
+  ['Смерть', '✢', 'Конец этапа и трансформация. Что-то уходит, чтобы освободить место новому. Не буквальная смерть, а перерождение.', 'Сопротивление переменам, застревание в отжившем. Боль продлевается, пока вы держитесь.', -1],
+  ['Умеренность', '⚗', 'Баланс, терпение, исцеление, золотая середина. Смешивайте противоположности — и рождается гармония.', 'Крайности, дисбаланс, спешка. Вы перегибаете палку.', 1],
+  ['Дьявол', '♑', 'Зависимости, искушение, привязанности и тень. Цепи, которые держат вас, можно снять.', 'Освобождение от оков, осознание зависимости, первый шаг к свободе.', -1],
+  ['Башня', 'ϟ', 'Внезапное крушение иллюзий, потрясение, откровение. Рушится то, что было построено на лжи.', 'Отложенный кризис, страх перемен. Буря обходит стороной — но только если вы меняетесь.', -1],
+  ['Звезда', '★', 'Надежда, вдохновение, исцеление и вера. После бури — тишина и свет.', 'Разочарование, потеря веры, неверие в себя. Свет есть, вы просто отвернулись.', 1],
+  ['Луна', '☽', 'Иллюзии, страхи, подсознание и неясность. Не всё то, чем кажется — двигайтесь осторожно, доверяя интуиции.', 'Прояснение, выход из тумана, раскрытие обмана.', -1],
+  ['Солнце', '☀', 'Радость, успех, ясность и жизненная сила. Одна из самых благоприятных карт колоды.', 'Временная грусть, завышенные ожидания. Солнце за облаками, но оно есть.', 1],
+  ['Суд', '♫', 'Пробуждение, второй шанс, призвание. Время подвести итоги и услышать зов.', 'Самокритика, игнорирование зова, страх перемен.', 1],
+  ['Мир', '◯', 'Завершение, целостность, достижение. Цикл закрыт — вы на вершине.', 'Незавершённость, отсутствие финала. Осталось последнее усилие.', 1],
+];
+const ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
+
+const SUITS = [
+  { key: 'wands', name: 'Жезлы', gen: 'Жезлов', element: 'Огонь', theme: 'энергия, страсть, карьера',
+    icon: '<line x1="6" y1="21" x2="18" y2="3"/><path d="M14.5 8.2l3.2.6M10.6 13.4l-3.1-.9M16.4 5.4l2.6-1.2"/>',
+    cards: [
+      ['Новая идея, вдохновение, творческий импульс.', 'Задержки, нехватка мотивации, ложный старт.'],
+      ['Планирование, выбор пути, взгляд на горизонт.', 'Страх неизвестного, нерешительность.'],
+      ['Расширение, первые результаты, перспективы.', 'Задержки, узкое видение.'],
+      ['Праздник, стабильность, дом и радость.', 'Нестабильность, напряжение в семье.'],
+      ['Конкуренция, споры, столкновение амбиций.', 'Избегание конфликта, внутренняя борьба.'],
+      ['Победа, признание, успех.', 'Падение репутации, гордыня.'],
+      ['Оборона, отстаивание своей позиции.', 'Сдача позиций, усталость от борьбы.'],
+      ['Быстрое развитие, новости, движение.', 'Задержки, суета, неверный темп.'],
+      ['Стойкость, последний рывок, бдительность.', 'Истощение, подозрительность.'],
+      ['Перегрузка, ответственность, тяжёлое бремя.', 'Сброс лишнего, делегирование.'],
+      ['Энтузиазм, хорошая новость, искатель.', 'Незрелость, вспышки без продолжения.'],
+      ['Действие, приключение, порыв.', 'Импульсивность, нетерпение.'],
+      ['Уверенность, харизма, тепло.', 'Ревность, неуверенность в себе.'],
+      ['Лидерство, видение, предпринимательский дух.', 'Тирания, завышенные ожидания.'],
+    ] },
+  { key: 'cups', name: 'Кубки', gen: 'Кубков', element: 'Вода', theme: 'чувства, любовь, отношения',
+    icon: '<path d="M6 4h12v3a6 6 0 0 1-12 0z"/><path d="M12 13v6M8 20h8"/>',
+    cards: [
+      ['Новая любовь, открытое сердце, эмоциональное начало.', 'Блокировка чувств, внутренняя пустота.'],
+      ['Союз, взаимность, партнёрство.', 'Разлад, дисбаланс в паре.'],
+      ['Дружба, праздник, общность.', 'Сплетни, излишества, третий лишний.'],
+      ['Апатия, неудовлетворённость, упущенное предложение.', 'Пробуждение интереса, новые возможности.'],
+      ['Потеря, сожаление, фокус на плохом.', 'Принятие, исцеление, движение дальше.'],
+      ['Ностальгия, детство, тёплые воспоминания.', 'Жизнь прошлым, нежелание взрослеть.'],
+      ['Иллюзии, множество вариантов, мечты.', 'Ясность, выбор сделан.'],
+      ['Уход, поиск большего смысла.', 'Страх уйти, бесцельность.'],
+      ['Исполнение желаний, удовлетворение.', 'Самодовольство, пресыщение.'],
+      ['Семейное счастье, гармония.', 'Разлад в семье, разбитые идеалы.'],
+      ['Нежная весть, творческое предложение.', 'Эмоциональная незрелость, капризы.'],
+      ['Романтика, признание, предложение.', 'Нереалистичность, перепады настроения.'],
+      ['Эмпатия, забота, интуиция.', 'Созависимость, эмоциональная нестабильность.'],
+      ['Эмоциональная зрелость, мудрость, дипломатия.', 'Манипуляции, холодность.'],
+    ] },
+  { key: 'swords', name: 'Мечи', gen: 'Мечей', element: 'Воздух', theme: 'мысли, конфликты, решения',
+    icon: '<path d="M12 2v15M8 15h8M12 17v4"/><path d="M10 4l2-2 2 2"/>',
+    cards: [
+      ['Ясность, прорыв, истина.', 'Путаница, ложь, неверные выводы.'],
+      ['Тупик, трудное решение, нейтралитет.', 'Информационная перегрузка, самообман.'],
+      ['Боль, разбитое сердце, горе.', 'Восстановление, прощение.'],
+      ['Отдых, восстановление, пауза.', 'Выгорание, беспокойство.'],
+      ['Конфликт, поражение, победа любой ценой.', 'Примирение, желание прекратить спор.'],
+      ['Переход, уход от трудностей к спокойствию.', 'Сопротивление переменам, незавершённые дела.'],
+      ['Хитрость, обман, скрытая стратегия.', 'Разоблачение, признание.'],
+      ['Ограничения, ловушка мышления, беспомощность.', 'Освобождение, новый взгляд.'],
+      ['Тревога, бессонница, страхи.', 'Надежда, отпускание страха.'],
+      ['Крах, болезненный финал, дно.', 'Восстановление: худшее позади.'],
+      ['Любопытство, наблюдательность, новые идеи.', 'Сплетни, поспешные слова.'],
+      ['Стремительность, амбиции, прямота.', 'Агрессия, необдуманные действия.'],
+      ['Независимость, ясность, честность.', 'Холодность, жестокость, горечь.'],
+      ['Интеллект, авторитет, истина.', 'Манипуляция, тирания разума.'],
+    ] },
+  { key: 'pentacles', name: 'Пентакли', gen: 'Пентаклей', element: 'Земля', theme: 'деньги, работа, тело',
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M12 5L16.1 17.7 5.3 9.8 18.7 9.8 7.9 17.7Z"/>',
+    cards: [
+      ['Новая финансовая возможность, процветание.', 'Упущенный шанс, неудачные вложения.'],
+      ['Баланс, жонглирование делами, гибкость.', 'Перегрузка, финансовый хаос.'],
+      ['Командная работа, мастерство, признание.', 'Плохая слаженность, халтура.'],
+      ['Накопление, контроль, безопасность.', 'Жадность, страх потерять.'],
+      ['Нужда, трудности, изоляция.', 'Восстановление, помощь приходит.'],
+      ['Щедрость, обмен, благотворительность.', 'Долги, неравенство.'],
+      ['Терпение, ожидание урожая, оценка.', 'Нетерпение, напрасные усилия.'],
+      ['Мастерство, усердие, обучение.', 'Перфекционизм, скука.'],
+      ['Самодостаточность, изобилие, роскошь.', 'Зависимость, показное богатство.'],
+      ['Богатство, наследство, семья, стабильность.', 'Финансовые потери, семейные споры.'],
+      ['Учёба, новая цель, практичность.', 'Лень, отсутствие прогресса.'],
+      ['Трудолюбие, надёжность, рутина.', 'Скука, застой.'],
+      ['Забота, практичность, достаток.', 'Перегруз бытом, неуверенность.'],
+      ['Богатство, деловая хватка, лидерство.', 'Жадность, материализм.'],
+    ] },
+];
+const RANKS = ['Туз', 'Двойка', 'Тройка', 'Четвёрка', 'Пятёрка', 'Шестёрка', 'Семёрка', 'Восьмёрка', 'Девятка', 'Десятка', 'Паж', 'Рыцарь', 'Королева', 'Король'];
+const RANK_SHORT = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'P', 'Kn', 'Q', 'K'];
+const YN_OVERRIDE = {
+  wands: { 4: -1, 6: 0, 8: 0, 9: -1 }, cups: { 3: 0, 4: -1, 6: 0, 7: -1 },
+  pentacles: { 3: 0, 4: -1, 6: 0 }, swords: { 0: 1, 1: 0, 3: 0, 5: 0, 10: 0, 12: 0, 13: 0 },
+};
+
+const DECK = [];
+MAJOR.forEach((m, i) => DECK.push({ id: i, major: true, name: m[0], symbol: m[1], num: ROMAN[i], up: m[2], rev: m[3], yn: m[4], suit: null }));
+SUITS.forEach((s, si) => s.cards.forEach((c, r) => {
+  const base = s.key === 'swords' ? -1 : 1;
+  const yn = YN_OVERRIDE[s.key][r] ?? base;
+  DECK.push({ id: 22 + si * 14 + r, major: false, name: `${RANKS[r]} ${s.gen}`, num: RANK_SHORT[r], rank: r, suit: s.key, suitIdx: si,
+    up: `${c[0]} Сфера: ${s.theme}.`, rev: c[1], yn });
+}));
+
+const SPREADS = [
+  { key: 'day', name: 'Карта дня', icon: '☀', desc: 'Одна карта — энергия и совет на сегодня.', pos: ['Энергия дня'] },
+  { key: 'yesno', name: 'Да / Нет', icon: '⚖', desc: 'Задайте закрытый вопрос и вытяните одну карту.', pos: ['Ответ'] },
+  { key: 'three', name: 'Три карты', icon: '⟡', desc: 'Прошлое, настоящее и будущее ситуации.', pos: ['Прошлое', 'Настоящее', 'Будущее'] },
+  { key: 'love', name: 'Отношения', icon: '♡', desc: 'Пять карт о вас, партнёре и связи между вами.', pos: ['Вы', 'Партнёр', 'Связь между вами', 'Препятствие', 'Перспектива'] },
+  { key: 'choice', name: 'Выбор', icon: '⑂', desc: 'Сравнение двух путей и совет карт.', pos: ['Суть ситуации', 'Путь А', 'Путь Б', 'Совет'] },
+  { key: 'celtic', name: 'Кельтский крест', icon: '✠', desc: 'Классический расклад из 10 карт для глубокого анализа.', pos: ['Суть ситуации', 'Препятствие', 'Основа', 'Прошлое', 'Сознательная цель', 'Ближайшее будущее', 'Вы сами', 'Окружение', 'Надежды и страхи', 'Итог'] },
+];
+
+// ═══════════════ ПРИЛОЖЕНИЕ ═══════════════
+(() => {
+  const tg = window.Telegram?.WebApp;
+  try {
+    if (tg && tg.initData !== undefined) {
+      tg.ready(); tg.expand();
+      tg.setHeaderColor?.('#07090E'); tg.setBackgroundColor?.('#07090E');
+      if (tg.isVersionAtLeast?.('7.7')) tg.disableVerticalSwipes?.();
+    }
+  } catch (e) {}
+
+  // ── утилиты ──
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const haptic = (k = 'light') => { try { tg?.HapticFeedback?.impactOccurred(k); } catch (e) {} };
+  const hapticSel = () => { try { tg?.HapticFeedback?.selectionChanged(); } catch (e) {} };
+  const notify = t => { try { tg?.HapticFeedback?.notificationOccurred(t); } catch (e) {} };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const pad = n => String(n).padStart(2, '0');
+  const dateKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fmtTime = d => d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const fmtDate = (d, o = { day: 'numeric', month: 'long' }) => d.toLocaleDateString('ru-RU', o);
+  const signOf = lon => Math.floor(Astro.norm(lon) / 30);
+  const T = '︎'; // текстовое (не эмодзи) отображение глифов
+  SIGNS.forEach(s => s.g = s.glyph + T);
+  Object.values(PLANETS).forEach(p => p.g = p.glyph + T);
+  DECK.forEach(c => { if (c.symbol) c.symbol += T; });
+
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function seedRng(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+    let a = h >>> 0;
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  const randInt = n => { try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; } catch (e) { return Math.floor(Math.random() * n); } };
+
+  const store = {
+    get(k, def) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; } catch (e) { return def; } },
+    set(k, v) {
+      try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {}
+      if (k === 'lumina_profile') { try { if (tg?.isVersionAtLeast?.('6.9')) tg.CloudStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    },
+  };
+
+  // ── состояние ──
+  let profile = store.get('lumina_profile', null);
+  let NATAL = null;
+  const tgName = tg?.initDataUnsafe?.user?.first_name || '';
+  function computeNatal() { NATAL = profile ? Astro.chart(profile) : null; }
+  computeNatal();
+
+  // ── звёзды на фоне ──
+  function drawStars() {
+    const c = $('#stars'), dpr = window.devicePixelRatio || 1;
+    c.width = innerWidth * dpr; c.height = innerHeight * dpr;
+    const x = c.getContext('2d'); x.scale(dpr, dpr);
+    const R = seedRng('stars');
+    for (let i = 0; i < 110; i++) {
+      x.fillStyle = `rgba(255,${235 + R() * 20},${200 + R() * 55},${0.2 + R() * 0.6})`;
+      x.beginPath(); x.arc(R() * innerWidth, R() * innerHeight, R() * 1.1 + 0.2, 0, 7); x.fill();
+    }
+  }
+
+  // ── навигация ──
+  function goTab(id) {
+    $$('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.target === id));
+    $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+    window.scrollTo(0, 0);
+  }
+  $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => { haptic(); goTab(btn.dataset.target); }));
+
+  // ── нижняя шторка ──
+  const sheet = $('#sheet'), backdrop = $('#backdrop');
+  function openSheet(html) {
+    $('#sheet-body').innerHTML = html; sheet.scrollTop = 0;
+    sheet.classList.add('open'); backdrop.classList.add('open'); document.body.style.overflow = 'hidden';
+    try { tg?.BackButton?.show(); } catch (e) {}
+  }
+  function closeSheet() {
+    sheet.classList.remove('open'); backdrop.classList.remove('open'); document.body.style.overflow = '';
+    try { tg?.BackButton?.hide(); } catch (e) {}
+  }
+  backdrop.addEventListener('click', closeSheet);
+  $('#sheet-close').addEventListener('click', closeSheet);
+  try { tg?.BackButton?.onClick(closeSheet); } catch (e) {}
+
+  function share(text) {
+    const url = location.href.split('#')[0];
+    haptic('medium');
+    if (tg?.openTelegramLink && tg.initData) { tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`); return; }
+    if (navigator.share) { navigator.share({ text, url }).catch(() => {}); return; }
+    navigator.clipboard?.writeText(text + '\n' + url).then(() => toast('Скопировано в буфер обмена'));
+  }
+
+  const bar = (label, val) => `<div><div class="bar-label"><span>${label}</span><span>${val}%</span></div><div class="bar-track"><div class="bar-fill" data-w="${val}"></div></div></div>`;
+  const animateBars = root => requestAnimationFrame(() => setTimeout(() => $$('.bar-fill', root).forEach(b => b.style.width = b.dataset.w + '%'), 40));
+
+  // ════════════ ЛУНА: SVG ════════════
+  function moonSVG(elong, size = 84) {
+    const r = size / 2 - 2, c = size / 2;
+    const k = Math.cos(elong * Math.PI / 180), waxing = elong < 180, rx = Math.abs(k) * r;
+    const outer = waxing ? 1 : 0, term = k > 0 ? (waxing ? 0 : 1) : (waxing ? 1 : 0);
+    const lit = `M${c},${c - r} A${r},${r} 0 0 ${outer} ${c},${c + r} A${rx},${r} 0 0 ${term} ${c},${c - r} Z`;
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <defs><radialGradient id="mg${size}" cx="40%" cy="38%"><stop offset="0" stop-color="#FFF6DA"/><stop offset="1" stop-color="#D8B258"/></radialGradient></defs>
+      <circle cx="${c}" cy="${c}" r="${r}" fill="#1A1F2C" stroke="rgba(216,178,88,.25)"/>
+      <path d="${lit}" fill="url(#mg${size})"/></svg>`;
+  }
+
+  // ════════════ ПРОГНОЗЫ ════════════
+  const NAT_NOM = { sun: 'натальное Солнце', moon: 'натальная Луна', mercury: 'натальный Меркурий', venus: 'натальная Венера', mars: 'натальный Марс', asc: 'Асцендент' };
+  const HEAD_GOOD = { sun: 'День, чтобы сиять', moon: 'Слушайте сердце', mercury: 'Слова открывают двери', venus: 'Время для нежности', mars: 'Энергия на подъёме', jupiter: 'Удача на вашей стороне', saturn: 'Фундамент на годы' };
+  const HEAD_HARD = { sun: 'Не воюйте с собой', moon: 'Эмоциональные качели', mercury: 'Проверяйте детали', venus: 'Не идеализируйте', mars: 'Тише едешь — дальше будешь', jupiter: 'Знайте меру', saturn: 'Испытание на прочность' };
+  const CAT = { love: ['venus', 'moon', 'mars'], work: ['saturn', 'mercury', 'sun', 'jupiter'], energy: ['mars', 'sun', 'moon'], luck: ['jupiter', 'venus', 'sun'] };
+
+  function retroNotes(now) {
+    const n = [];
+    if (now.mercury.retro) n.push('<b>Меркурий ретрограден</b> — перепроверяйте договорённости и технику, хорошо возвращаться к старым делам и людям.');
+    if (now.venus.retro) n.push('<b>Венера ретроградна</b> — время пересмотреть отношения и траты; не лучший период для крупных покупок и смены имиджа.');
+    if (now.mars.retro) n.push('<b>Марс ретрограден</b> — энергия уходит внутрь: доделывайте начатое, не форсируйте конфликты.');
+    return n;
+  }
+
+  function dailyReading(date = new Date()) {
+    const now = Astro.positions(date), N = NATAL;
+    const targets = { sun: N.planets.sun.lon, moon: N.planets.moon.lon, mercury: N.planets.mercury.lon, venus: N.planets.venus.lon, mars: N.planets.mars.lon };
+    if (N.asc != null) targets.asc = N.asc;
+    const orbs = { moon: 5, sun: 3, mercury: 3, venus: 3, mars: 3, jupiter: 2.5, saturn: 2.5 };
+    const wt = { moon: .75, sun: 1, mercury: .85, venus: 1, mars: 1, jupiter: 1.2, saturn: 1.2 };
+    const list = [];
+    for (const t of Object.keys(TRANSIT)) for (const n of Object.keys(targets)) {
+      if (t === 'sun' && n === 'sun') continue;
+      const a = Astro.aspectBetween(now[t].lon, targets[n], orbs[t]);
+      if (a) list.push({ t, n, a, w: wt[t] * (0.5 + a.tight) * (n === 'sun' || n === 'asc' ? 1.15 : 1) });
+    }
+    list.sort((x, y) => y.w - x.w);
+    const R = seedRng(dateKey(date) + profile.name + profile.date);
+    const sc = { love: 56 + R() * 14, work: 56 + R() * 14, energy: 56 + R() * 14, luck: 56 + R() * 14 };
+    for (const x of list) {
+      const sgn = x.a.nature === 0 ? (['saturn', 'mars'].includes(x.t) ? -0.3 : 0.7) : x.a.nature;
+      for (const c in CAT) if (CAT[c].includes(x.t) || CAT[c].includes(x.n)) sc[c] += sgn * 13 * (0.4 + x.a.tight);
+    }
+    for (const c in sc) sc[c] = Math.round(clamp(sc[c], 18, 98));
+    const base = N.asc != null ? signOf(N.asc) : signOf(N.planets.sun.lon);
+    const moonSign = signOf(now.moon.lon);
+    const house = ((moonSign - base + 12) % 12) + 1;
+    const top = list[0];
+    let headline = HOUSES[house - 1].t;
+    if (top) {
+      const good = top.a.nature > 0 || (top.a.nature === 0 && !['saturn', 'mars'].includes(top.t));
+      headline = (good ? HEAD_GOOD : HEAD_HARD)[top.t];
+    }
+    const items = list.slice(0, 4).map(x => {
+      const good = x.a.nature > 0 || (x.a.nature === 0 && !['saturn', 'mars'].includes(x.t));
+      const badge = x.a.nature === 0 ? ['mid', 'соединение'] : good ? ['good', 'гармония'] : ['bad', 'напряжение'];
+      return {
+        title: `${PLANETS[x.t].g} ${PLANETS[x.t].name} ${x.a.glyph} ${NAT_NOM[x.n]}`, badge,
+        text: `${TRANSIT[x.t].does} — это затрагивает ${NATAL_AREA[x.n]}. ${ASPECT_DESC[x.a.key]} ${good ? TRANSIT[x.t].good : TRANSIT[x.t].hard}`,
+      };
     });
-    catalog.appendChild(card);
+    const pday = numerology().pday;
+    return { now, sc, house, moonSign, headline, items, retro: retroNotes(now), pday };
+  }
 
-    // Добавление в селекторы синастрии
-    select1.add(new Option(`${sign.icon} ${sign.name}`, index));
-    select2.add(new Option(`${sign.icon} ${sign.name}`, index));
-  });
-  
-  select2.selectedIndex = 1; // Просто чтобы по умолчанию были разные знаки
+  function signForecast(si, date = new Date()) {
+    const now = Astro.positions(date);
+    const houseOf = k => ((signOf(now[k].lon) - si + 12) % 12) + 1;
+    const mh = houseOf('moon'), sh = houseOf('sun'), vh = houseOf('venus'), mah = houseOf('mars');
+    const R = seedRng(dateKey(date) + 'sign' + si);
+    const sc = { love: 55 + R() * 16, work: 55 + R() * 16, energy: 55 + R() * 16, luck: 55 + R() * 16 };
+    for (const t of Object.keys(TRANSIT)) {
+      const d0 = Math.abs(signOf(now[t].lon) - si), d = Math.min(d0, 12 - d0);
+      const nat = d === 0 ? 0.5 : (d === 2 || d === 4) ? 1 : (d === 3 || d === 6) ? -1 : 0;
+      const w = t === 'moon' ? 9 : 6;
+      for (const c in CAT) if (CAT[c].includes(t)) sc[c] += nat * w;
+    }
+    for (const c in sc) sc[c] = Math.round(clamp(sc[c], 20, 97));
+    const lc = s => s.toLowerCase();
+    const parts = [
+      `<b>Луна в ${mh}-м доме</b> от вашего знака (${lc(HOUSES[mh - 1].t)}): ${HOUSES[mh - 1].d}`,
+      `<b>Солнце в ${sh}-м доме</b> — главная тема месяца: ${lc(HOUSES[sh - 1].t)}.`,
+      `<b>Венера в ${vh}-м доме</b>: в любви и деньгах акцент на теме «${lc(HOUSES[vh - 1].t)}».`,
+      `<b>Марс в ${mah}-м доме</b> направляет энергию в сферу «${lc(HOUSES[mah - 1].t)}».`,
+      ...retroNotes(now),
+    ];
+    return { sc, parts };
+  }
 
-  // ── ДВИЖОК СИНАСТРИИ (Алгоритм генерации совместимости) ──
-  document.getElementById('btn-synastry').addEventListener('click', () => {
-    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-    
-    const id1 = parseInt(select1.value);
-    const id2 = parseInt(select2.value);
-    const sign1 = zodiacData[id1];
-    const sign2 = zodiacData[id2];
-    
-    // Псевдо-математика совместимости на основе порядкового номера (Астрологические аспекты)
-    // 0 = Соединение, 1 = Полусекстиль, 2 = Секстиль, 3 = Квадратура, 4 = Трин, 5 = Квиконс, 6 = Оппозиция
-    const distance = Math.min(Math.abs(id1 - id2), 12 - Math.abs(id1 - id2));
-    
-    let love = 50, friend = 50, work = 50;
-    let desc = "";
+  // ════════════ НУМЕРОЛОГИЯ ════════════
+  const NUM_MAP = {};
+  ['АИСЪ', 'БЙТЫ', 'ВКУЬ', 'ГЛФЭ', 'ДМХЮ', 'ЕНЦЯ', 'ЁОЧ', 'ЖПШ', 'ЗРЩ'].forEach((s, i) => [...s].forEach(ch => NUM_MAP[ch] = i + 1));
+  ['AJS', 'BKT', 'CLU', 'DMV', 'ENW', 'FOX', 'GPY', 'HQZ', 'IR'].forEach((s, i) => [...s].forEach(ch => NUM_MAP[ch] = i + 1));
+  const VOWELS = 'АЕЁИОУЫЭЮЯAEIOU';
+  const digitSum = n => String(n).split('').reduce((a, b) => a + (+b || 0), 0);
+  const reduce = (n, master = true) => { while (n > 9 && !(master && (n === 11 || n === 22 || n === 33))) n = digitSum(n); return n; };
+  function numerology(p = profile, today = new Date()) {
+    if (!p) return {};
+    const [y, m, d] = p.date.split('-').map(Number);
+    const life = reduce(digitSum(y) + digitSum(m) + digitSum(d));
+    const letters = [...(p.name || '').toUpperCase()].filter(ch => NUM_MAP[ch]);
+    const destiny = letters.length ? reduce(letters.reduce((a, ch) => a + NUM_MAP[ch], 0)) : null;
+    const soulL = letters.filter(ch => VOWELS.includes(ch)), persL = letters.filter(ch => !VOWELS.includes(ch));
+    const soul = soulL.length ? reduce(soulL.reduce((a, ch) => a + NUM_MAP[ch], 0)) : null;
+    const pers = persL.length ? reduce(persL.reduce((a, ch) => a + NUM_MAP[ch], 0)) : null;
+    const pyear = reduce(digitSum(d) + digitSum(m) + digitSum(today.getFullYear()), false);
+    const pmonth = reduce(pyear + digitSum(today.getMonth() + 1), false);
+    const pday = reduce(pmonth + digitSum(today.getDate()), false);
+    return { life, destiny, soul, pers, pyear, pmonth, pday };
+  }
 
-    switch(distance) {
-      case 0: // Один знак
-        love = 70; friend = 90; work = 80; desc = "Эффект зеркала. Вы отлично понимаете друг друга, но ваши общие недостатки могут удвоиться."; break;
-      case 1: // Соседние знаки
-        love = 60; friend = 50; work = 75; desc = "Вы говорите на разных языках, но можете многому научиться друг у друга. Один всегда немного впереди."; break;
-      case 2: // Секстиль (дружественная стихия)
-        love = 85; friend = 95; work = 90; desc = "Прекрасная гармония. Вы поддерживаете друг друга, ваши стихии идеально сочетаются без потери индивидуальности."; break;
-      case 3: // Квадратура (напряжение)
-        love = 90; friend = 40; work = 50; desc = "Опасная зона. Искры летят во все стороны. Страсть огромна, но конфликты неизбежны из-за упрямства обоих."; break;
-      case 4: // Трин (одна стихия)
-        love = 95; friend = 95; work = 85; desc = "Идеальное совпадение. Вы словно созданы друг для друга. Главное — не заскучать в этом абсолютном комфорте."; break;
-      case 5: // Квиконс (странная связь)
-        love = 40; friend = 60; work = 65; desc = "Кармическая связь. Вы совершенно разные, но вас тянет друг к другу, чтобы пройти болезненный, но важный урок."; break;
-      case 6: // Оппозиция
-        love = 80; friend = 70; work = 95; desc = "Два полюса одного магнита. Вы полные противоположности, но именно поэтому можете составить идеальную команду, закрывая слепые зоны друг друга."; break;
+  // ════════════ КАРТА ТАРО (HTML) ════════════
+  function cardHTML(card, rev = false, flipped = false, attrs = '') {
+    const sym = card.major ? `<div class="sym">${card.symbol}</div>` : `<div class="sym"><svg viewBox="0 0 24 24">${SUITS[card.suitIdx].icon}</svg></div>`;
+    return `<div class="tcard ${flipped ? 'flipped' : ''}" ${attrs}>
+      <div class="face back"><span>✶</span></div>
+      <div class="face front ${rev ? 'rev' : ''}"><div class="inner"><div class="num">${card.num}</div>${sym}<div class="cname">${esc(card.name)}</div></div></div></div>`;
+  }
+  const dayCardFor = date => {
+    const R = seedRng('daycard' + dateKey(date) + (profile?.name || tgName) + (profile?.date || ''));
+    return { id: Math.floor(R() * 78), rev: R() < 0.3 };
+  };
+
+  // ════════════ ЭКРАН «ЭФИР» ════════════
+  let calMonth = new Date(); calMonth.setDate(1);
+  let calSel = dateKey(new Date());
+
+  function renderHome() {
+    const now = new Date(), h = now.getHours();
+    const hello = h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : h < 23 ? 'Добрый вечер' : 'Доброй ночи';
+    const name = profile?.name || tgName;
+    const mi = Astro.moonInfo(now), ph = PHASES[mi.phase];
+    const nf = Astro.nextPhase(now, 180), nn = Astro.nextPhase(now, 0), ing = Astro.nextMoonIngress(now);
+    const md = MOON_DAY[mi.sign];
+    let html = `
+      <div class="greet">
+        <div><h1 class="page-title">${hello}${name ? ',<br>' + esc(name) : ''}</h1>
+        <div class="date-line">${fmtDate(now, { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
+        <div class="avatar">${NATAL ? SIGNS[signOf(NATAL.planets.sun.lon)].g : '✶'}</div>
+      </div>
+      <div class="card">
+        <div class="moon-hero">${moonSVG(mi.elong, 84)}
+          <div><div class="eyebrow">Луна сейчас</div><div class="moon-name">${ph.name}</div>
+          <div class="muted small">Луна ${SIGNS[mi.sign].in} ${SIGNS[mi.sign].g} · ${Astro.fmtDeg(mi.lon)}</div>
+          ${ing ? `<div class="dim small">→ ${SIGNS[ing.sign].in} с ${fmtTime(ing.date)}${dateKey(ing.date) !== dateKey(now) ? ', ' + fmtDate(ing.date) : ''}</div>` : ''}</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-v">${Math.round(mi.illum * 100)}%</div><div class="stat-l">Освещённость</div></div>
+          <div class="stat"><div class="stat-v">${mi.lunarDay}</div><div class="stat-l">Лунный день</div></div>
+          <div class="stat"><div class="stat-v">${mi.elong < 180 ? '↑' : '↓'}</div><div class="stat-l">${mi.elong < 180 ? 'Растущая' : 'Убывающая'}</div></div>
+        </div>
+        <div class="stat-grid" style="grid-template-columns:1fr 1fr">
+          <div class="stat"><div class="stat-v">🌕${T} ${nf ? fmtDate(nf) : '—'}</div><div class="stat-l">Полнолуние ${nf ? fmtTime(nf) : ''}</div></div>
+          <div class="stat"><div class="stat-v">🌑${T} ${nn ? fmtDate(nn) : '—'}</div><div class="stat-l">Новолуние ${nn ? fmtTime(nn) : ''}</div></div>
+        </div>
+        <p class="prose mt12">${ph.advice}</p>
+        <div class="vibe-row">
+          <div><div class="vibe-title" style="color:var(--good)">Делать</div><div class="vibe-text">${md.do}</div></div>
+          <div><div class="vibe-title" style="color:var(--bad)">Избегать</div><div class="vibe-text">${md.avoid}</div></div>
+        </div>
+        <div class="muted small mt12">Благоприятно: ${md.good}</div>
+      </div>`;
+
+    if (NATAL) {
+      const r = dailyReading(now);
+      html += `<div class="card" id="daily">
+        <div class="eyebrow">Ваш прогноз на сегодня</div>
+        <div class="headline">${r.headline}</div>
+        <div class="bars">${bar('Любовь', r.sc.love)}${bar('Работа', r.sc.work)}${bar('Энергия', r.sc.energy)}${bar('Удача', r.sc.luck)}</div>
+        <div class="divider"></div>
+        ${r.items.length ? r.items.map(i => `<div class="transit"><div class="transit-h">${i.title} <span class="badge ${i.badge[0]}">${i.badge[1]}</span></div><p>${i.text}</p></div>`).join('')
+          : `<p class="prose">Сегодня нет точных транзитов к вашей карте — спокойный день, когда всё зависит только от вас.</p>`}
+        <div class="transit"><div class="transit-h">☽${T} Луна в вашем ${r.house}-м доме <span class="badge mid">${HOUSES[r.house - 1].t}</span></div><p>${HOUSES[r.house - 1].d}</p></div>
+        ${r.retro.map(t => `<div class="transit"><p>${t}</p></div>`).join('')}
+        <div class="transit"><div class="transit-h">Число дня: ${r.pday}</div><p>${PERSONAL_DAY[r.pday]}</p></div>
+        <button class="btn btn-ghost mt8" style="width:100%" id="share-daily">Поделиться прогнозом</button>
+      </div>`;
+    } else {
+      html += `<div class="card empty-state"><div class="g">✨</div><div class="card-title">Персональный прогноз</div>
+        <p class="prose" style="margin:6px 0 14px">Укажите дату рождения — и прогноз будет строиться по реальным транзитам планет к вашей натальной карте.</p>
+        <button class="btn btn-primary" data-go="me">Заполнить профиль</button></div>`;
     }
 
-    document.getElementById('synastry-title').innerText = `${sign1.name} и ${sign2.name}`;
-    document.getElementById('synastry-desc').innerText = desc;
-    document.getElementById('synastry-result').style.display = 'block';
+    const dc = dayCardFor(now), card = DECK[dc.id];
+    const seen = store.get('lumina_daycard', '') === dateKey(now);
+    html += `<div class="card"><div class="eyebrow" style="margin-bottom:10px">Карта дня</div>
+      <div class="daycard">${cardHTML(card, dc.rev, seen, 'id="daycard"')}
+      <div id="daycard-text">${seen ? dayCardText(card, dc.rev) : '<div class="card-title">Что скажут карты?</div><p class="muted small">Нажмите на карту, чтобы открыть её. Одна карта — на весь день.</p>'}</div></div></div>`;
 
-    // Анимация прогресс-баров
-    const animateBar = (id, val) => {
-      document.getElementById(`syn-val-${id}`).innerText = `${val}%`;
-      const bar = document.getElementById(`syn-fill-${id}`);
-      bar.style.width = '0%';
-      setTimeout(() => { bar.style.width = `${val}%`; }, 50);
-    };
+    // планеты сейчас
+    const pos = Astro.positions(now);
+    html += `<div class="card"><div class="card-head"><div class="card-title">Небо сейчас</div><span class="dim small">${fmtTime(now)}</span></div>
+      ${Astro.PLANET_KEYS.map(k => { const p = pos[k], s = SIGNS[signOf(p.lon)]; return `<div class="planet-row"><div class="pglyph">${PLANETS[k].g}</div><div class="pname">${PLANETS[k].name}${p.retro ? '<span class="retro">R</span>' : ''}</div><div class="ppos">${s.g} ${s.name} ${Astro.fmtDeg(p.lon)}</div></div>`; }).join('')}
+      ${retroNotes(pos).length ? '' : '<p class="dim small mt8">Ни одна личная планета сейчас не ретроградна.</p>'}
+    </div>`;
 
-    animateBar('love', love);
-    animateBar('friend', friend);
-    animateBar('work', work);
+    html += `<div class="card" id="calendar"></div>`;
+    $('#home').innerHTML = html;
+    renderCalendar();
+    animateBars($('#home'));
+
+    const dcEl = $('#daycard');
+    dcEl.addEventListener('click', () => {
+      if (dcEl.classList.contains('flipped')) { openCardSheet(card, dc.rev); return; }
+      haptic('medium'); dcEl.classList.add('flipped'); store.set('lumina_daycard', dateKey(now));
+      setTimeout(() => { $('#daycard-text').innerHTML = dayCardText(card, dc.rev); }, 350);
+    });
+    $('#share-daily')?.addEventListener('click', () => {
+      const r = dailyReading(now);
+      share(`✨ Мой прогноз на ${fmtDate(now)}: «${r.headline}»\n❤ Любовь ${r.sc.love}% · 💼 Работа ${r.sc.work}% · ⚡ Энергия ${r.sc.energy}% · 🍀 Удача ${r.sc.luck}%\n🃏 Карта дня: ${card.name}${dc.rev ? ' (перевёрнутая)' : ''}`);
+    });
+  }
+  function dayCardText(card, rev) {
+    return `<div class="card-title">${esc(card.name)}${rev ? ' <span class="dim small">(перевёрнутая)</span>' : ''}</div><p class="muted small">${rev ? card.rev : card.up}</p><button class="btn-link mt8" data-card="${card.id}" data-rev="${rev ? 1 : 0}">Подробнее →</button>`;
+  }
+
+  function renderCalendar() {
+    const el = $('#calendar'); if (!el) return;
+    const y = calMonth.getFullYear(), m = calMonth.getMonth();
+    const days = new Date(y, m + 1, 0).getDate(), first = (new Date(y, m, 1).getDay() + 6) % 7;
+    const today = dateKey(new Date());
+    let cells = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+    for (let i = 0; i < first; i++) cells += '<div class="cal-day empty"></div>';
+    for (let d = 1; d <= days; d++) {
+      const info = dayMoon(new Date(y, m, d));
+      const key = `${y}-${pad(m + 1)}-${pad(d)}`;
+      cells += `<button class="cal-day ${key === today ? 'today' : ''} ${key === calSel ? 'sel' : ''}" data-day="${key}"><span>${d}</span><span class="e">${info.emoji}</span><span class="z">${SIGNS[info.sign].g}</span></button>`;
+    }
+    const title = calMonth.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+    el.innerHTML = `<div class="cal-head"><button class="cal-nav" data-cal="-1">‹</button><div class="card-title" style="text-transform:capitalize;margin:0">Лунный календарь<div class="dim small serif" style="font-size:15px">${title}</div></div><button class="cal-nav" data-cal="1">›</button></div>
+      <div class="cal-grid">${cells}</div><div class="cal-detail" id="cal-detail"></div>`;
+    renderCalDetail();
+  }
+  function dayMoon(day) {
+    const s = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0);
+    const e = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59);
+    const noon = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 12, 0);
+    const a = Astro.moonInfo(s), b = Astro.moonInfo(e), n = Astro.moonInfo(noon);
+    let event = null;
+    if (a.elong > 300 && b.elong < 60) event = 'new';
+    else if (a.elong < 180 && b.elong >= 180) event = 'full';
+    const em = ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
+    let idx = n.phase;
+    if (!event && idx === 0) idx = n.elong < 180 ? 1 : 7;
+    if (!event && idx === 4) idx = n.elong < 180 ? 3 : 5;
+    if (event) idx = event === 'new' ? 0 : 4;
+    return { ...n, event, emoji: em[idx] + T, idx, signStart: a.sign, signEnd: b.sign, start: s };
+  }
+  function renderCalDetail() {
+    const el = $('#cal-detail'); if (!el) return;
+    const [y, m, d] = calSel.split('-').map(Number);
+    const day = new Date(y, m - 1, d);
+    if (day.getMonth() !== calMonth.getMonth()) { el.style.display = 'none'; return; }
+    el.style.display = '';
+    const info = dayMoon(day), ph = PHASES[info.idx], md = MOON_DAY[info.sign];
+    let ingress = '';
+    if (info.signStart !== info.signEnd) {
+      const ing = Astro.nextMoonIngress(info.start);
+      if (ing) ingress = `<div class="muted small">В ${fmtTime(ing.date)} Луна переходит ${SIGNS[ing.sign].in} ${SIGNS[ing.sign].g}</div>`;
+    }
+    const ev = info.event === 'new' ? Astro.nextPhase(info.start, 0) : info.event === 'full' ? Astro.nextPhase(info.start, 180) : null;
+    el.innerHTML = `<div class="eyebrow">${fmtDate(day, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      <div class="card-title mt8">${info.emoji} ${info.event ? (info.event === 'new' ? 'Новолуние' : 'Полнолуние') + (ev ? ' в ' + fmtTime(ev) : '') : ph.name}</div>
+      <div class="muted small">Луна ${SIGNS[info.sign].in} ${SIGNS[info.sign].g} · ${info.lunarDay}-й лунный день · ${Math.round(info.illum * 100)}%</div>${ingress}
+      <p class="prose mt8">${ph.advice}</p>
+      <div class="vibe-row"><div><div class="vibe-title" style="color:var(--good)">Делать</div><div class="vibe-text">${md.do}</div></div>
+      <div><div class="vibe-title" style="color:var(--bad)">Избегать</div><div class="vibe-text">${md.avoid}</div></div></div>
+      <div class="muted small mt8">Благоприятно: ${md.good}</div>`;
+  }
+  document.addEventListener('click', e => {
+    const nav = e.target.closest('[data-cal]');
+    if (nav) { hapticSel(); calMonth.setMonth(calMonth.getMonth() + +nav.dataset.cal); renderCalendar(); return; }
+    const day = e.target.closest('[data-day]');
+    if (day) { hapticSel(); calSel = day.dataset.day; $$('.cal-day.sel').forEach(x => x.classList.remove('sel')); day.classList.add('sel'); renderCalDetail(); return; }
+    const go = e.target.closest('[data-go]');
+    if (go) { haptic(); closeSheet(); goTab(go.dataset.go); return; }
+    const cb = e.target.closest('[data-card]');
+    if (cb && !cb.closest('#tarot-table')) { haptic(); openCardSheet(DECK[+cb.dataset.card], cb.dataset.rev === '1'); return; }
+    const sg = e.target.closest('[data-sign]');
+    if (sg) { haptic(); openSignSheet(+sg.dataset.sign); return; }
   });
+
+  // ════════════ ЭКРАН «ЗНАКИ» ════════════
+  function renderSigns() {
+    const mine = NATAL ? signOf(NATAL.planets.sun.lon) : -1;
+    $('#signs').innerHTML = `<h1 class="page-title">Архетипы</h1><div class="page-subtitle">Глубинная суть 12 знаков и прогноз на сегодня</div>
+      <div class="sign-grid">${SIGNS.map(s => `<button class="sign-tile ${s.id === mine ? 'mine' : ''}" data-sign="${s.id}">
+        <span class="el" style="background:${ELEMENTS[s.element].color}"></span>
+        <div class="g">${s.g}</div><div class="n">${s.name}</div><div class="d">${s.dates}</div></button>`).join('')}</div>
+      <div class="card mt16"><div class="card-title">Стихии</div><div class="chips mt8">${ELEMENTS.map((e, i) => `<span class="chip"><span style="width:8px;height:8px;border-radius:50%;background:${e.color};display:inline-block"></span>${e.name}: ${SIGNS.filter(s => s.element === i).map(s => s.name).join(', ')}</span>`).join('')}</div></div>`;
+  }
+
+  function openSignSheet(si) {
+    const s = SIGNS[si], f = signForecast(si);
+    const best = SIGNS.filter(o => { const d0 = Math.abs(o.id - si), d = Math.min(d0, 12 - d0); return d === 4 || d === 2; });
+    const hard = SIGNS.filter(o => { const d0 = Math.abs(o.id - si), d = Math.min(d0, 12 - d0); return d === 3; });
+    openSheet(`<div class="center"><div class="big-glyph">${s.g}</div><h2 style="font-size:32px">${s.name}</h2><div class="muted small">${s.dates}</div>
+      <div class="chips mt12" style="justify-content:center"><span class="chip gold">${ELEMENTS[s.element].name}</span><span class="chip">${QUALITIES[s.quality]}</span><span class="chip">${s.polarity}</span><span class="chip">Управитель: ${s.ruler}</span></div></div>
+      <div class="card mt16"><div class="eyebrow">Сегодня, ${fmtDate(new Date())}</div>
+        <div class="bars mt12">${bar('Любовь', f.sc.love)}${bar('Работа', f.sc.work)}${bar('Энергия', f.sc.energy)}${bar('Удача', f.sc.luck)}</div>
+        <div class="prose mt12">${f.parts.map(p => `<p>${p}</p>`).join('')}</div></div>
+      <div class="prose">${s.desc}</div>
+      <div class="chips mt12">${s.strengths.map(x => `<span class="chip">${x}</span>`).join('')}</div>
+      <div class="section-t">♡ В любви</div><div class="prose">${s.love}</div>
+      <div class="section-t">◆ Карьера и призвание</div><div class="prose">${s.career}</div>
+      <div class="section-t">◐ Теневая сторона</div><div class="prose">${s.shadow}</div>
+      <div class="section-t">✦ Скрытый талант</div><div class="prose">${s.talent}</div>
+      <div class="section-t">⚷ Кармическая задача</div><div class="prose">${s.karma}</div>
+      <div class="section-t">⚭ Совместимость</div>
+      <div class="muted small">Гармоничные знаки:</div><div class="chips mt8">${best.map(o => `<button class="chip gold" data-match="${si},${o.id}">${o.g} ${o.name}</button>`).join('')}</div>
+      <div class="muted small mt12">Напряжённые (но страстные):</div><div class="chips mt8">${hard.map(o => `<button class="chip" data-match="${si},${o.id}">${o.g} ${o.name}</button>`).join('')}</div>
+      <div class="section-t">✧ Талисманы</div>
+      <div class="talismans"><div class="talisman"><div class="l">Камень</div><div class="v">${s.stone}</div></div><div class="talisman"><div class="l">Цвет</div><div class="v">${s.color}</div></div>
+      <div class="talisman"><div class="l">День силы</div><div class="v">${s.day}</div></div><div class="talisman"><div class="l">Зона тела</div><div class="v">${s.body}</div></div></div>`);
+    animateBars($('#sheet'));
+  }
+  document.addEventListener('click', e => {
+    const m = e.target.closest('[data-match]'); if (!m) return;
+    const [a, b] = m.dataset.match.split(',').map(Number);
+    closeSheet(); goTab('match'); matchMode = 'signs'; renderMatch(); $('#m-s1').value = a; $('#m-s2').value = b; runSignMatch();
+  });
+
+  // ════════════ ЭКРАН «ТАРО» ════════════
+  let spreadKey = 'three', reading = null;
+  function renderTarot() {
+    const sp = SPREADS.find(s => s.key === spreadKey);
+    $('#tarot').innerHTML = `<h1 class="page-title">Таро</h1><div class="page-subtitle">Полная колода из 78 арканов</div>
+      <div class="spread-list">${SPREADS.map(s => `<button class="spread-btn ${s.key === spreadKey ? 'on' : ''}" data-spread="${s.key}"><span class="i">${s.icon}${T}</span><span class="t">${s.name}</span><span class="c">${s.pos.length} ${s.pos.length === 1 ? 'карта' : s.pos.length < 5 ? 'карты' : 'карт'}</span></button>`).join('')}</div>
+      <div class="card"><div class="card-title">${sp.name}</div><p class="muted small">${sp.desc}</p>
+        ${spreadKey !== 'day' ? `<textarea class="textarea mt12" id="tarot-q" placeholder="${spreadKey === 'yesno' ? 'Например: Стоит ли мне менять работу?' : 'Ваш вопрос (необязательно)'}"></textarea>` : ''}
+        <button class="btn btn-primary mt12" id="tarot-draw">✶ Перемешать и разложить</button>
+        <div id="tarot-area"></div></div>
+      <div class="btn-row"><button class="btn btn-ghost" id="deck-open">📖 Справочник арканов</button><button class="btn btn-ghost" id="hist-open">🕮 История</button></div>`;
+    $$('[data-spread]').forEach(b => b.addEventListener('click', () => { hapticSel(); spreadKey = b.dataset.spread; reading = null; renderTarot(); }));
+    $('#tarot-draw').addEventListener('click', drawSpread);
+    $('#deck-open').addEventListener('click', openDeck);
+    $('#hist-open').addEventListener('click', openHistory);
+  }
+  function drawSpread() {
+    const sp = SPREADS.find(s => s.key === spreadKey);
+    const q = ($('#tarot-q')?.value || '').trim();
+    if (spreadKey === 'yesno' && !q) { toast('Сформулируйте вопрос — так ответ будет точнее'); $('#tarot-q').focus(); return; }
+    haptic('heavy');
+    const ids = DECK.map(c => c.id);
+    for (let i = ids.length - 1; i > 0; i--) { const j = randInt(i + 1); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+    reading = { spread: spreadKey, q, date: Date.now(), cards: sp.pos.map((_, i) => ({ id: ids[i], rev: randInt(100) < 30 })), open: new Set(), saved: false };
+    const n = sp.pos.length;
+    $('#tarot-area').innerHTML = `<div class="table ${spreadKey === 'celtic' ? 'celtic' : 'n' + n}" id="tarot-table">
+      ${reading.cards.map((c, i) => `<div class="slot"><div class="slot-label">${i + 1}. ${sp.pos[i]}</div>${cardHTML(DECK[c.id], c.rev, false, `data-slot="${i}"`)}</div>`).join('')}</div>
+      <p class="center dim small" id="tarot-hint">Нажимайте на карты, чтобы открыть их</p>
+      ${n > 1 ? '<button class="btn btn-ghost" style="width:100%" id="open-all">Открыть все</button>' : ''}
+      <div id="tarot-reading" class="mt12"></div>`;
+    $$('[data-slot]').forEach(el => el.addEventListener('click', () => revealSlot(+el.dataset.slot)));
+    $('#open-all')?.addEventListener('click', () => reading.cards.forEach((_, i) => setTimeout(() => revealSlot(i, true), i * 140)));
+    $('#tarot-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function revealSlot(i, silent) {
+    if (!reading) return;
+    const el = $(`[data-slot="${i}"]`);
+    if (reading.open.has(i)) { const c = reading.cards[i]; openCardSheet(DECK[c.id], c.rev); return; }
+    if (!silent) haptic('medium');
+    reading.open.add(i); el.classList.add('flipped');
+    renderReading();
+  }
+  function renderReading() {
+    const sp = SPREADS.find(s => s.key === reading.spread);
+    const items = reading.cards.map((c, i) => ({ c, i })).filter(x => reading.open.has(x.i));
+    let html = items.map(({ c, i }) => { const card = DECK[c.id]; return `<div class="reading-item"><div class="ri-n">${i + 1}</div><div><div class="ri-pos">${sp.pos[i]}</div><div class="ri-name">${esc(card.name)}${c.rev ? ' <span class="dim small">(перевёрнутая)</span>' : ''}</div><div class="ri-text">${c.rev ? card.rev : card.up}</div></div></div>`; }).join('');
+    if (reading.open.size === reading.cards.length) {
+      $('#tarot-hint')?.remove(); $('#open-all')?.remove();
+      html += `<div class="card mt12" style="background:var(--paper-2)">${summary(reading)}</div>`;
+      if (!reading.saved) {
+        reading.saved = true;
+        const h = store.get('lumina_history', []);
+        h.unshift({ spread: reading.spread, q: reading.q, date: reading.date, cards: reading.cards });
+        store.set('lumina_history', h.slice(0, 30));
+        notify('success');
+      }
+    }
+    $('#tarot-reading').innerHTML = html;
+  }
+  function yesNo(card, rev) {
+    if (!rev) return card.yn === 1 ? ['Да', 'Карта благоприятствует — двигайтесь вперёд.'] : card.yn === 0 ? ['Возможно', 'Ответ зависит от ваших действий и обстоятельств; ситуация ещё не определилась.'] : ['Нет', 'Карты предостерегают — сейчас не время или путь ведёт не туда.'];
+    return card.yn === -1 ? ['Возможно', 'Перевёрнутая негативная карта: худшее можно обойти, если действовать осознанно.'] : ['Скорее нет', 'Есть препятствия или внутренние сомнения — ответ «да» пока заблокирован.'];
+  }
+  function summary(r) {
+    const sp = SPREADS.find(s => s.key === r.spread), n = r.cards.length, cards = r.cards.map(c => ({ ...c, card: DECK[c.id] }));
+    const out = [];
+    if (r.q) out.push(`<div class="eyebrow">Вопрос</div><div class="serif" style="font-size:18px;color:#fff;margin-bottom:10px">«${esc(r.q)}»</div>`);
+    if (r.spread === 'yesno') {
+      const [v, d] = yesNo(cards[0].card, cards[0].rev);
+      out.push(`<div class="verdict">${v}</div><p class="center muted small">${d}</p>`);
+      return out.join('');
+    }
+    out.push('<div class="card-title">Итог расклада</div><div class="prose">');
+    const majors = cards.filter(c => c.card.major).length, revs = cards.filter(c => c.rev).length;
+    if (n >= 3) {
+      if (majors >= Math.ceil(n / 2)) out.push('<p>Много <b>Старших Арканов</b> — ситуация судьбоносная, на неё влияют силы больше вас. Важно не сопротивляться течению, а услышать урок.</p>');
+      else if (majors === 0) out.push('<p>Нет ни одного Старшего Аркана — всё в ваших руках. Ситуация житейская и решаемая вашими действиями.</p>');
+      const cnt = {}; cards.filter(c => !c.card.major).forEach(c => cnt[c.card.suit] = (cnt[c.card.suit] || 0) + 1);
+      const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+      const SUIT_T = { wands: 'действий, амбиций и энергии', cups: 'чувств, отношений и эмоций', swords: 'мыслей, решений и конфликтов', pentacles: 'денег, работы и материального' };
+      if (top && top[1] >= 2) out.push(`<p>Преобладают <b>${SUITS.find(s => s.key === top[0]).name}</b> — ключ к вопросу лежит в сфере ${SUIT_T[top[0]]}.</p>`);
+      if (revs >= Math.ceil(n / 2)) out.push('<p>Много <b>перевёрнутых карт</b> — энергия заблокирована или обращена внутрь. Сначала разберитесь с внутренними препятствиями.</p>');
+      else if (revs === 0) out.push('<p>Все карты прямые — энергия течёт свободно, ситуация открыта.</p>');
+    }
+    const last = cards[n - 1];
+    out.push(`<p><b>${sp.pos[n - 1]}: ${esc(last.card.name)}.</b> ${last.rev ? last.card.rev : last.card.up}</p>`);
+    const pos = cards.reduce((a, c) => a + (c.rev ? (c.card.yn === -1 ? 0 : -0.5) : c.card.yn), 0) / n;
+    out.push(`<p>Общий тон расклада: <b>${pos > 0.35 ? 'благоприятный' : pos > -0.1 ? 'смешанный — многое зависит от вас' : 'предостерегающий'}</b>.</p></div>`);
+    return out.join('');
+  }
+  function openCardSheet(card, rev) {
+    const suit = card.major ? null : SUITS[card.suitIdx];
+    const yn = yesNo(card, false)[0];
+    openSheet(`<div style="width:160px;margin:6px auto 16px">${cardHTML(card, rev, true)}</div>
+      <div class="center"><h2 style="font-size:28px">${esc(card.name)}</h2>
+      <div class="chips mt8" style="justify-content:center">${card.major ? `<span class="chip gold">Старший Аркан ${card.num}</span>` : `<span class="chip gold">${suit.name}</span><span class="chip">${suit.element}</span>`}<span class="chip">Да/Нет: ${yn}</span></div></div>
+      <div class="section-t">▲ Прямое положение</div><div class="prose">${card.up}</div>
+      <div class="section-t">▼ Перевёрнутое положение</div><div class="prose">${card.rev}</div>
+      ${suit ? `<div class="section-t">✦ Масть</div><div class="prose">${suit.name} — стихия ${suit.element}. Сфера масти: ${suit.theme}.</div>` : `<div class="section-t">✦ Место в пути Шута</div><div class="prose">Старшие Арканы описывают большие жизненные уроки. ${card.name} — ${card.id + 1}-я ступень из 22 на пути души от наивного начала к целостности.</div>`}`);
+  }
+  function openDeck() {
+    haptic();
+    openSheet(`<h2 style="font-size:26px;margin-bottom:10px">Справочник арканов</h2>
+      <input class="input deck-search" id="deck-q" placeholder="Поиск: Королева, Кубки, Луна…">
+      <div class="seg" id="deck-seg"><button class="on" data-f="all">Все</button><button data-f="major">Старшие</button>${SUITS.map(s => `<button data-f="${s.key}">${s.name}</button>`).join('')}</div>
+      <div class="deck-grid" id="deck-grid"></div>`);
+    let f = 'all';
+    const draw = () => {
+      const q = $('#deck-q').value.trim().toLowerCase();
+      $('#deck-grid').innerHTML = DECK.filter(c => (f === 'all' || (f === 'major' ? c.major : c.suit === f)) && (!q || c.name.toLowerCase().includes(q) || c.up.toLowerCase().includes(q)))
+        .map(c => cardHTML(c, false, true, `data-card="${c.id}" data-rev="0"`)).join('') || '<p class="muted small">Ничего не найдено</p>';
+    };
+    $('#deck-q').addEventListener('input', draw);
+    $$('#deck-seg button').forEach(b => b.addEventListener('click', () => { $$('#deck-seg button').forEach(x => x.classList.remove('on')); b.classList.add('on'); f = b.dataset.f; draw(); }));
+    $('#deck-seg').style.cssText += 'overflow-x:auto;scrollbar-width:none';
+    $$('#deck-seg button').forEach(b => b.style.whiteSpace = 'nowrap');
+    draw();
+  }
+  function openHistory() {
+    haptic();
+    const h = store.get('lumina_history', []);
+    openSheet(`<h2 style="font-size:26px;margin-bottom:6px">История раскладов</h2>
+      ${h.length ? h.map(r => { const sp = SPREADS.find(s => s.key === r.spread); return `<div class="hist-item"><div class="eyebrow">${new Date(r.date).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · ${sp.name}</div>
+        ${r.q ? `<div class="serif" style="font-size:17px;color:#fff;margin-top:2px">«${esc(r.q)}»</div>` : ''}
+        <div class="chips mt8">${r.cards.map((c, i) => `<button class="chip ${DECK[c.id].major ? 'gold' : ''}" data-card="${c.id}" data-rev="${c.rev ? 1 : 0}">${i + 1}. ${esc(DECK[c.id].name)}${c.rev ? ' ↓' : ''}</button>`).join('')}</div>
+        ${r.spread === 'yesno' ? `<div class="gold small mt8">Ответ: ${yesNo(DECK[r.cards[0].id], r.cards[0].rev)[0]}</div>` : ''}</div>`; }).join('')
+        + '<button class="btn btn-ghost mt16" style="width:100%" id="hist-clear">Очистить историю</button>'
+        : '<p class="muted mt12">Здесь появятся ваши расклады.</p>'}`);
+    $('#hist-clear')?.addEventListener('click', () => { store.set('lumina_history', []); openHistory(); });
+  }
+
+  // ════════════ ЭКРАН «СВЯЗИ» ════════════
+  let matchMode = 'signs';
+  function renderMatch() {
+    const mine = NATAL ? signOf(NATAL.planets.sun.lon) : 0;
+    const opts = sel => SIGNS.map(s => `<option value="${s.id}" ${s.id === sel ? 'selected' : ''}>${s.g} ${s.name}</option>`).join('');
+    $('#match').innerHTML = `<h1 class="page-title">Связи</h1><div class="page-subtitle">Совместимость и синастрия</div>
+      <div class="seg"><button class="${matchMode === 'signs' ? 'on' : ''}" data-mm="signs">По знакам</button><button class="${matchMode === 'dates' ? 'on' : ''}" data-mm="dates">По датам рождения</button></div>
+      <div class="card">${matchMode === 'signs' ? `
+        <p class="muted small" style="margin-bottom:14px">Быстрый расчёт по солнечным знакам: стихии, аспект между знаками и стиль любви каждого.</p>
+        <div class="vs"><div class="field" style="margin:0"><label>Первый знак</label><select class="select" id="m-s1">${opts(mine)}</select></div><div class="vs-x">&</div>
+        <div class="field" style="margin:0"><label>Второй знак</label><select class="select" id="m-s2">${opts((mine + 4) % 12)}</select></div></div>
+        <button class="btn btn-primary" id="m-go">Проверить связь</button>` : `
+        <p class="muted small" style="margin-bottom:14px">Настоящая синастрия: сравниваем положение Солнца, Луны, Меркурия, Венеры, Марса, Юпитера и Сатурна двух людей.</p>
+        <div class="row2"><div class="field"><label>Имя</label><input class="input" id="d-n1" value="${esc(profile?.name || tgName || '')}" placeholder="Вы"></div>
+        <div class="field"><label>Дата рождения</label><input class="input" type="date" id="d-d1" value="${profile?.date || ''}" min="1900-01-01" max="2100-12-31"></div></div>
+        <div class="row2"><div class="field"><label>Имя партнёра</label><input class="input" id="d-n2" placeholder="Партнёр"></div>
+        <div class="field"><label>Дата рождения</label><input class="input" type="date" id="d-d2" min="1900-01-01" max="2100-12-31"></div></div>
+        <button class="btn btn-primary" id="m-go">Рассчитать синастрию</button>`}
+        <div id="m-res"></div></div>`;
+    $$('[data-mm]').forEach(b => b.addEventListener('click', () => { hapticSel(); matchMode = b.dataset.mm; renderMatch(); }));
+    $('#m-go').addEventListener('click', () => matchMode === 'signs' ? runSignMatch() : runDateMatch());
+  }
+  const ring = val => {
+    const r = 54, c = 2 * Math.PI * r;
+    return `<div class="ring-wrap"><svg width="140" height="140" viewBox="0 0 140 140"><defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#B88D33"/><stop offset="1" stop-color="#F0D48C"/></linearGradient></defs>
+      <circle cx="70" cy="70" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9"/>
+      <circle cx="70" cy="70" r="${r}" fill="none" stroke="url(#rg)" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}" transform="rotate(-90 70 70)" class="ring-arc" data-off="${c * (1 - val / 100)}" style="transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)"/>
+      <text x="70" y="74" text-anchor="middle" class="ring-val">${val}%</text><text x="70" y="94" text-anchor="middle" class="ring-sub">совместимость</text></svg></div>`;
+  };
+  const animateRing = () => requestAnimationFrame(() => setTimeout(() => $$('.ring-arc').forEach(a => a.style.strokeDashoffset = a.dataset.off), 40));
+  const verdict = t => t >= 85 ? 'Звёздный союз' : t >= 74 ? 'Сильная пара' : t >= 62 ? 'Есть над чем работать' : 'Союз-испытание';
+  const ADVICE = [
+    'Распределите роли и не соревнуйтесь — вы и так понимаете друг друга с полуслова.',
+    'Будьте любопытны к различиям: партнёр показывает вам то, чего вам самим не хватает.',
+    'Совместные проекты, учёба и путешествия укрепят связь лучше любых слов.',
+    'Договоритесь о «правилах спора» заранее и не копите обиды — тогда страсть станет топливом, а не пожаром.',
+    'Добавляйте новизну: комфорт не должен превращаться в рутину.',
+    'Не пытайтесь переделать друг друга — ищите третий путь, который подходит обоим.',
+    'Цените противоположность: вместе вы видите картину целиком.',
+  ];
+  function signScores(a, b) {
+    const e1 = SIGNS[a].element, e2 = SIGNS[b].element, ep = ELEMENT_PAIRS[[Math.min(e1, e2), Math.max(e1, e2)].join('-')];
+    const d0 = Math.abs(a - b), dist = Math.min(d0, 12 - d0), D = DISTANCE[dist];
+    const R = seedRng('pair' + Math.min(a, b) + '-' + Math.max(a, b));
+    const s = [0, 1, 2].map(i => Math.round(clamp(ep.s[i] * 0.55 + D.s[i] * 0.45 + (R() - 0.5) * 8, 20, 98)));
+    return { love: s[0], friend: s[1], work: s[2], ep, D, dist };
+  }
+  function runSignMatch() {
+    haptic('medium');
+    const a = +$('#m-s1').value, b = +$('#m-s2').value, s = signScores(a, b);
+    const total = Math.round(s.love * 0.4 + s.friend * 0.3 + s.work * 0.3);
+    $('#m-res').innerHTML = `<div class="divider mt16"></div>${ring(total)}
+      <div class="match-title">${SIGNS[a].g} ${SIGNS[a].name} & ${SIGNS[b].g} ${SIGNS[b].name}</div><div class="center muted small mt8">${verdict(total)} · ${s.D.t}</div>
+      <div class="bars-1">${bar('Любовь и страсть', s.love)}${bar('Дружба и доверие', s.friend)}${bar('Быт и общее дело', s.work)}</div>
+      <div class="section-t">⚹ Аспект знаков</div><div class="prose">${s.D.d}</div>
+      <div class="section-t">🜁${T} Стихии: ${ELEMENTS[SIGNS[a].element].name} + ${ELEMENTS[SIGNS[b].element].name}</div><div class="prose">${s.ep.d}</div>
+      <div class="section-t">${SIGNS[a].g} ${SIGNS[a].name}</div><div class="prose">${SIGNS[a].love}</div>
+      ${a !== b ? `<div class="section-t">${SIGNS[b].g} ${SIGNS[b].name}</div><div class="prose">${SIGNS[b].love}</div>` : ''}
+      <div class="section-t">✦ Совет паре</div><div class="prose">${ADVICE[s.dist]}</div>
+      <div class="notice mt16">Это расчёт только по Солнцу. Для точной картины используйте вкладку «По датам рождения» — там учитываются Луна, Венера, Марс и другие планеты.</div>
+      <button class="btn btn-ghost mt12" style="width:100%" id="m-share">Поделиться</button>`;
+    animateBars($('#m-res')); animateRing();
+    $('#m-share').addEventListener('click', () => share(`💫 Совместимость ${SIGNS[a].name} и ${SIGNS[b].name}: ${total}% — «${verdict(total)}»\n❤ Любовь ${s.love}% · 🤝 Дружба ${s.friend}% · 🏠 Быт ${s.work}%`));
+    $('#m-res').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  const SYN_W = { 'moon-sun': 10, 'mars-venus': 10, 'moon-moon': 6, 'venus-venus': 6, 'sun-sun': 5, 'mercury-mercury': 5, 'sun-venus': 6, 'moon-venus': 6, 'mars-sun': 5, 'mars-moon': 5, 'mercury-venus': 4, 'mercury-sun': 4, 'mercury-moon': 4, 'mars-mercury': 3 };
+  const SYN_CAT = { love: ['venus', 'mars', 'moon', 'sun'], friend: ['mercury', 'sun', 'moon', 'jupiter'], work: ['saturn', 'mercury', 'mars', 'sun'] };
+  function runDateMatch() {
+    const d1 = $('#d-d1').value, d2 = $('#d-d2').value;
+    if (!d1 || !d2) { toast('Укажите обе даты рождения'); return; }
+    haptic('medium');
+    const n1 = $('#d-n1').value.trim() || 'Вы', n2 = $('#d-n2').value.trim() || 'Партнёр';
+    const A = (profile && d1 === profile.date) ? NATAL : Astro.chart({ date: d1, timeKnown: false, tz: 0 });
+    const B = Astro.chart({ date: d2, timeKnown: false, tz: 0 });
+    const keys = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+    const sa = signOf(A.planets.sun.lon), sb = signOf(B.planets.sun.lon), base = signScores(sa, sb);
+    const sc = { love: base.love, friend: base.friend, work: base.work };
+    const asps = [];
+    for (const p of keys) for (const q of keys) {
+      if (['jupiter', 'saturn'].includes(p) && ['jupiter', 'saturn'].includes(q)) continue;
+      const orb = (p === 'moon' || q === 'moon') ? 7 : (['jupiter', 'saturn'].includes(p) || ['jupiter', 'saturn'].includes(q)) ? 4 : 6;
+      const a = Astro.aspectBetween(A.planets[p].lon, B.planets[q].lon, orb); if (!a) continue;
+      const key = [p, q].sort().join('-');
+      const w = SYN_W[key] || (key.includes('jupiter') || key.includes('saturn') ? 4 : 3);
+      const sat = key.includes('saturn');
+      const harm = a.nature > 0 || (a.nature === 0 && !(sat && key.includes('mars')));
+      asps.push({ p, q, a, key, w: w * (0.5 + a.tight), harm });
+      for (const c in SYN_CAT) {
+        if (!SYN_CAT[c].includes(p) && !SYN_CAT[c].includes(q)) continue;
+        let v = a.nature > 0 ? 1 : a.nature === 0 ? (harm ? 0.8 : -0.5) : -0.9;
+        if (c === 'love' && a.nature < 0 && key === 'mars-venus') v = 0.3;
+        if (c === 'work' && sat && a.nature >= 0) v += 0.3;
+        sc[c] += v * w * 0.9 * (0.4 + a.tight);
+      }
+    }
+    for (const c in sc) sc[c] = Math.round(clamp(sc[c], 18, 98));
+    const total = Math.round(sc.love * 0.4 + sc.friend * 0.3 + sc.work * 0.3);
+    asps.sort((x, y) => y.w - x.w);
+    const txt = x => {
+      const t = SYN_PAIRS[x.key];
+      if (t) return x.harm ? t.h : t.t;
+      return x.harm ? `${SYN_ROLES[x.p][0].toUpperCase() + SYN_ROLES[x.p].slice(1)} одного и ${SYN_ROLES[x.q]} другого легко находят общий язык.` : `${SYN_ROLES[x.p][0].toUpperCase() + SYN_ROLES[x.p].slice(1)} одного и ${SYN_ROLES[x.q]} другого требуют притирки.`;
+    };
+    const pl = (C, nm) => `<div class="b3"><div class="l">${esc(nm)}</div><div class="v mt8">☉${T} ${SIGNS[signOf(C.planets.sun.lon)].name}</div><div class="small muted">☽${T} ${SIGNS[signOf(C.planets.moon.lon)].name}</div><div class="small muted">♀${T} ${SIGNS[signOf(C.planets.venus.lon)].name} · ♂${T} ${SIGNS[signOf(C.planets.mars.lon)].name}</div></div>`;
+    $('#m-res').innerHTML = `<div class="divider mt16"></div>${ring(total)}
+      <div class="match-title">${esc(n1)} & ${esc(n2)}</div><div class="center muted small mt8">${verdict(total)} · найдено аспектов: ${asps.length}</div>
+      <div class="bars-1">${bar('Любовь и страсть', sc.love)}${bar('Дружба и общение', sc.friend)}${bar('Быт и общее дело', sc.work)}</div>
+      <div class="big3" style="grid-template-columns:1fr 1fr">${pl(A, n1)}${pl(B, n2)}</div>
+      <div class="section-t">⚭ Ключевые аспекты</div>
+      ${asps.slice(0, 9).map(x => `<div class="syn-asp"><div class="g">${PLANETS[x.p].g} ${x.a.glyph} ${PLANETS[x.q].g}</div><div><div class="small" style="color:#fff;font-weight:600">${PLANETS[x.p].name} (${esc(n1)}) — ${PLANETS[x.q].name} (${esc(n2)}) <span class="badge ${x.a.nature === 0 ? 'mid' : x.harm ? 'good' : 'bad'}">${x.a.name.toLowerCase()}</span></div><div class="ri-text">${txt(x)}</div></div></div>`).join('') || '<p class="prose">Точных аспектов между личными планетами нет — связь строится больше на выборе, чем на «химии».</p>'}
+      <div class="section-t">🜁${T} Стихии Солнц</div><div class="prose">${base.ep.d}</div>
+      <div class="section-t">✦ Совет паре</div><div class="prose">${ADVICE[base.dist]}</div>
+      <div class="notice mt16">Время рождения не учитывается, поэтому положение Луны может отличаться на несколько градусов.</div>
+      <button class="btn btn-ghost mt12" style="width:100%" id="m-share">Поделиться</button>`;
+    animateBars($('#m-res')); animateRing();
+    $('#m-share').addEventListener('click', () => share(`💫 Синастрия ${n1} & ${n2}: ${total}% — «${verdict(total)}»\n❤ Любовь ${sc.love}% · 🤝 Дружба ${sc.friend}% · 🏠 Быт ${sc.work}%`));
+    $('#m-res').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ════════════ ЭКРАН «Я» ════════════
+  let editing = false;
+  function renderMe() {
+    if (!profile || editing) return renderForm();
+    const N = NATAL, num = numerology();
+    const sun = SIGNS[signOf(N.planets.sun.lon)], moon = SIGNS[signOf(N.planets.moon.lon)], asc = N.asc != null ? SIGNS[signOf(N.asc)] : null;
+    const [y, m, d] = profile.date.split('-').map(Number);
+    const city = profile.city >= 0 ? CITIES[profile.city][0] : `${profile.lat?.toFixed(2)}, ${profile.lon?.toFixed(2)}`;
+    const ascSign = asc ? asc.id : null;
+    const houseOf = lon => ascSign == null ? null : ((signOf(lon) - ascSign + 12) % 12) + 1;
+    const ROLE = { sun: 'воля', moon: 'чувства', mercury: 'мышление', venus: 'любовь', mars: 'действие', jupiter: 'рост', saturn: 'дисциплина', uranus: 'свобода', neptune: 'мечты', asc: 'образ' };
+    // аспекты натала
+    const pts = Astro.PLANET_KEYS.map(k => ({ k, lon: N.planets[k].lon }));
+    if (N.asc != null) pts.push({ k: 'asc', lon: N.asc });
+    const nat = [];
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const a = pts[i], b = pts[j];
+      if (['uranus', 'neptune'].includes(a.k) && ['uranus', 'neptune', 'saturn', 'jupiter'].includes(b.k)) continue;
+      if (['jupiter', 'saturn'].includes(a.k) && ['uranus', 'neptune', 'saturn'].includes(b.k)) continue;
+      if (!N.timeKnown && (a.k === 'moon' || b.k === 'moon')) { /* луна приблизительна */ }
+      const orb = ['sun', 'moon'].includes(a.k) || ['sun', 'moon'].includes(b.k) ? 7 : ['uranus', 'neptune'].includes(a.k) || ['uranus', 'neptune'].includes(b.k) ? 4 : 6;
+      const as = Astro.aspectBetween(a.lon, b.lon, orb); if (as) nat.push({ a: a.k, b: b.k, as });
+    }
+    nat.sort((x, y) => x.as.orb - y.as.orb);
+    const nm = k => k === 'asc' ? 'Асцендент' : PLANETS[k].name, gl = k => k === 'asc' ? 'AC' : PLANETS[k].g;
+    // баланс стихий
+    const el = [0, 0, 0, 0], ql = [0, 0, 0];
+    const wts = { sun: 2, moon: 2, mercury: 1, venus: 1, mars: 1, jupiter: 1, saturn: 1 };
+    for (const k in wts) { const s = signOf(N.planets[k].lon); el[s % 4] += wts[k]; ql[s % 3] += wts[k]; }
+    if (N.asc != null) { el[signOf(N.asc) % 4] += 2; ql[signOf(N.asc) % 3] += 2; }
+    const tot = el.reduce((a, b) => a + b, 0);
+    const EL_T = ['Огонь даёт вам смелость, энтузиазм и способность вдохновлять — берегитесь выгорания.', 'Земля делает вас практичным, надёжным и терпеливым — не забывайте о спонтанности.', 'Воздух дарит лёгкость, идеи и коммуникабельность — заземляйте мысли в дела.', 'Вода наделяет глубокой интуицией и эмпатией — учитесь защищать свои границы.'];
+    const EL_MISS = ['Огня мало: может не хватать драйва и уверенности — ищите его в спорте и творчестве.', 'Земли мало: сложнее с режимом и деньгами — помогают простые ритуалы и планы.', 'Воздуха мало: важно проговаривать мысли и чаще общаться.', 'Воды мало: стоит учиться замечать и проживать свои чувства.'];
+    const maxE = el.indexOf(Math.max(...el)), minE = el.indexOf(Math.min(...el));
+    const QL_T = ['Кардинальный крест: вы инициатор, умеете начинать.', 'Фиксированный крест: вы стабилизатор, умеете удерживать и доводить.', 'Мутабельный крест: вы адаптер, умеете меняться и приспосабливаться.'];
+    const lp = NUMEROLOGY[num.life];
+
+    $('#me').innerHTML = `
+      <div class="card-head"><div><h1 class="page-title">${esc(profile.name || 'Моя карта')}</h1><div class="date-line" style="text-transform:none">${pad(d)}.${pad(m)}.${y}${N.timeKnown ? ', ' + profile.time : ''} · ${esc(city)}</div></div>
+      <button class="btn-link" id="me-edit">Изменить</button></div>
+      <div class="big3">
+        <div class="b3"><div class="g">☉${T}</div><div class="v">${sun.name}</div><div class="l">Солнце</div></div>
+        <div class="b3"><div class="g">☽${T}</div><div class="v">${moon.name}</div><div class="l">Луна</div></div>
+        <div class="b3"><div class="g">↑</div><div class="v">${asc ? asc.name : '—'}</div><div class="l">Асцендент</div></div>
+      </div>
+      ${!N.timeKnown ? '<div class="notice mt8">Время рождения не указано: Асцендент и дома не рассчитаны, положение Луны приблизительно (±6°). Добавьте время в профиле для полной карты.</div>' : ''}
+      <div class="card mt12"><div class="wheel-wrap">${wheelSVG(N)}</div></div>
+
+      <div class="card"><div class="card-title">Большая тройка</div>
+        <div class="section-t" style="margin-top:8px">☉${T} Солнце ${sun.in}</div><div class="prose">${sun.desc}</div>
+        <div class="section-t">☽${T} Луна ${moon.in}</div><div class="prose">${moon.moon}</div>
+        ${asc ? `<div class="section-t">↑ Асцендент ${asc.in}</div><div class="prose">${asc.asc}</div>` : ''}
+      </div>
+
+      <div class="card"><div class="card-title" style="margin-bottom:6px">Планеты</div>
+        ${Astro.PLANET_KEYS.map(k => { const p = N.planets[k], s = SIGNS[signOf(p.lon)], h = houseOf(p.lon); return `<div class="acc"><div class="acc-h"><div class="pglyph">${PLANETS[k].g}</div><div class="t">${PLANETS[k].name}${p.retro ? '<span class="retro">R</span>' : ''}</div><div class="s">${s.g} ${s.name} ${Astro.fmtDeg(p.lon)}${h ? `<br><span class="dim">${h} дом</span>` : ''}</div><span class="arr">›</span></div>
+          <div class="acc-b"><b>${PLANETS[k].name}</b> — ${PLANETS[k].natal}. ${s.in[0].toUpperCase() + s.in.slice(1)} это проявляется ${s.style}.${h ? ` <br><br><b>${h} дом — ${HOUSES[h - 1].t.toLowerCase()}.</b> ${HOUSES[h - 1].d}` : ''}${p.retro ? '<br><br><b>Ретроградность</b> — энергия планеты направлена внутрь: вы переосмысливаете эту сферу глубже других.' : ''}</div></div>`; }).join('')}
+        ${N.asc != null ? `<div class="acc"><div class="acc-h"><div class="pglyph" style="font-size:12px">AC</div><div class="t">Асцендент</div><div class="s">${asc.g} ${asc.name} ${Astro.fmtDeg(N.asc)}</div><span class="arr">›</span></div><div class="acc-b">${asc.asc}</div></div>
+        <div class="acc"><div class="acc-h"><div class="pglyph" style="font-size:12px">MC</div><div class="t">Середина неба</div><div class="s">${SIGNS[signOf(N.mc)].g} ${SIGNS[signOf(N.mc)].name} ${Astro.fmtDeg(N.mc)}</div><span class="arr">›</span></div><div class="acc-b">MC показывает ваше призвание и публичный образ. ${SIGNS[signOf(N.mc)].career}</div></div>` : ''}
+      </div>
+
+      <div class="card"><div class="card-title">Баланс стихий</div>
+        <div class="balance mt12">${el.map((v, i) => bar(ELEMENTS[i].name, Math.round(v / tot * 100))).join('')}</div>
+        <p class="prose mt12"><b>Доминирует ${ELEMENTS[maxE].name}.</b> ${EL_T[maxE]}</p>
+        ${el[minE] <= 1 ? `<p class="prose mt8">${EL_MISS[minE]}</p>` : ''}
+        <p class="prose mt8">${QL_T[ql.indexOf(Math.max(...ql))]}</p>
+      </div>
+
+      <div class="card"><div class="card-title" style="margin-bottom:6px">Аспекты карты</div>
+        ${nat.slice(0, 12).map(x => { const h = x.as.nature; return `<div class="acc"><div class="acc-h"><div class="pglyph" style="font-size:13px;width:auto;padding:0 8px;border-radius:10px">${gl(x.a)} ${x.as.glyph} ${gl(x.b)}</div><div class="t">${nm(x.a)} — ${nm(x.b)}</div><span class="badge ${h === 0 ? 'mid' : h > 0 ? 'good' : 'bad'}">${x.as.name.toLowerCase()}</span><span class="arr">›</span></div>
+          <div class="acc-b" style="padding-left:0">${h === 0 ? `Сферы «${ROLE[x.a]}» и «${ROLE[x.b]}» слиты воедино и усиливают друг друга — это яркая черта вашего характера.` : h > 0 ? `«${ROLE[x.a][0].toUpperCase() + ROLE[x.a].slice(1)}» и «${ROLE[x.b]}» работают слаженно — природный талант, на который можно опираться.` : `Между сферами «${ROLE[x.a]}» и «${ROLE[x.b]}» есть внутреннее напряжение. Оно бывает неудобным, но именно оно даёт мотивацию к росту.`} Орбис ${x.as.orb.toFixed(1)}°.</div></div>`; }).join('') || '<p class="muted small">Мажорных аспектов не найдено.</p>'}
+      </div>
+
+      <div class="card"><div class="card-title">Нумерология</div><p class="muted small" style="margin-bottom:12px">Пифагорейская система. Нажмите на число, чтобы прочитать расшифровку.</p>
+        <div class="num-cell" data-num="${num.life}" data-numt="Число жизненного пути" style="margin-bottom:8px"><div style="display:flex;gap:14px;align-items:center"><div class="v" style="font-size:46px">${num.life}</div><div><div class="t">${lp.t}</div><div class="l">Число жизненного пути — главное число судьбы</div></div></div></div>
+        <div class="num-grid">
+          ${num.destiny ? `<div class="num-cell" data-num="${num.destiny}" data-numt="Число судьбы (имени)"><div class="v">${num.destiny}</div><div class="t">${NUMEROLOGY[num.destiny].t}</div><div class="l">Число судьбы по имени</div></div>` : ''}
+          ${num.soul ? `<div class="num-cell" data-num="${num.soul}" data-numt="Число души"><div class="v">${num.soul}</div><div class="t">${NUMEROLOGY[num.soul].t}</div><div class="l">Число души — тайные желания</div></div>` : ''}
+          ${num.pers ? `<div class="num-cell" data-num="${num.pers}" data-numt="Число личности"><div class="v">${num.pers}</div><div class="t">${NUMEROLOGY[num.pers].t}</div><div class="l">Число личности — как вас видят</div></div>` : ''}
+          <div class="num-cell" data-num="${num.pyear}" data-numt="Личный год ${new Date().getFullYear()}" data-py="1"><div class="v">${num.pyear}</div><div class="t">Личный год</div><div class="l">${PERSONAL_YEAR[num.pyear]}</div></div>
+        </div></div>
+      <button class="btn btn-ghost" style="width:100%" id="me-share">Поделиться своей картой</button>`;
+
+    $('#me-edit').addEventListener('click', () => { haptic(); editing = true; renderMe(); });
+    $$('#me .acc-h').forEach(h => h.addEventListener('click', () => { hapticSel(); h.parentElement.classList.toggle('open'); }));
+    $$('#me [data-num]').forEach(c => c.addEventListener('click', () => {
+      haptic(); const v = +c.dataset.num, n = NUMEROLOGY[v];
+      openSheet(`<div class="center"><div class="big-glyph serif" style="font-size:44px">${v}</div><div class="eyebrow">${c.dataset.numt}</div><h2 style="font-size:30px;margin-top:4px">${c.dataset.py ? 'Личный год ' + v : n.t}</h2></div><div class="prose mt16">${c.dataset.py ? PERSONAL_YEAR[v] + '<br><br>Личный год считается от вашего дня и месяца рождения плюс текущего года и задаёт тему всего года по 9-летнему циклу.' : n.d}</div>`);
+    }));
+    $('#me-share').addEventListener('click', () => share(`🌌 Моя натальная карта:\n☉ Солнце ${sun.in}\n☽ Луна ${moon.in}${asc ? `\n↑ Асцендент ${asc.in}` : ''}\n🔢 Число пути: ${num.life} — ${lp.t}`));
+  }
+
+  function wheelSVG(N) {
+    const S = 360, c = S / 2, R0 = 176, R1 = 148, R2 = 104, R3 = 84;
+    const ref = N.asc != null ? N.asc : 0;
+    const ang = lon => (180 + (lon - ref)) * Math.PI / 180;
+    const P = (lon, r) => [c + r * Math.cos(ang(lon)), c - r * Math.sin(ang(lon))];
+    let g = `<circle cx="${c}" cy="${c}" r="${R0}" fill="rgba(16,20,29,.6)" stroke="rgba(216,178,88,.45)"/><circle cx="${c}" cy="${c}" r="${R1}" fill="none" stroke="rgba(216,178,88,.3)"/><circle cx="${c}" cy="${c}" r="${R3}" fill="rgba(0,0,0,.25)" stroke="rgba(216,178,88,.2)"/>`;
+    for (let i = 0; i < 12; i++) {
+      const [x1, y1] = P(i * 30, R3), [x2, y2] = P(i * 30, R0);
+      g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(216,178,88,${N.asc != null ? .18 : .12})"/>`;
+      const [gx, gy] = P(i * 30 + 15, (R0 + R1) / 2);
+      g += `<text x="${gx}" y="${gy}" text-anchor="middle" dominant-baseline="central" font-size="17" fill="${ELEMENTS[i % 4].color}">${SIGNS[i].g}</text>`;
+      if (N.asc != null) { const h = ((i - signOf(N.asc) + 12) % 12) + 1; const [hx, hy] = P(i * 30 + 15, R3 + 9); g += `<text x="${hx}" y="${hy}" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.3)">${h}</text>`; }
+      for (let t = 0; t < 30; t += 5) { if (!t) continue; const [a1, b1] = P(i * 30 + t, R1), [a2, b2] = P(i * 30 + t, R1 - 4); g += `<line x1="${a1}" y1="${b1}" x2="${a2}" y2="${b2}" stroke="rgba(216,178,88,.2)"/>`; }
+    }
+    // аспекты
+    const keys = Astro.PLANET_KEYS;
+    for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) {
+      const a = Astro.aspectBetween(N.planets[keys[i]].lon, N.planets[keys[j]].lon, 6);
+      if (!a || a.key === 'conj') continue;
+      const [x1, y1] = P(N.planets[keys[i]].lon, R3 - 2), [x2, y2] = P(N.planets[keys[j]].lon, R3 - 2);
+      g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${a.nature > 0 ? 'rgba(120,180,255,.55)' : 'rgba(255,107,107,.5)'}" stroke-width="${0.6 + a.tight}"/>`;
+    }
+    // планеты с разведением
+    const pl = keys.map(k => ({ k, lon: N.planets[k].lon, d: N.planets[k].lon })).sort((a, b) => a.lon - b.lon);
+    for (let it = 0; it < 30; it++) for (let i = 0; i < pl.length; i++) {
+      const a = pl[i], b = pl[(i + 1) % pl.length]; let gap = Astro.norm(b.d - a.d);
+      if (gap < 10 && pl.length > 1) { const push = (10 - gap) / 2; a.d -= push; b.d += push; }
+    }
+    for (const p of pl) {
+      const [tx1, ty1] = P(p.lon, R1), [tx2, ty2] = P(p.lon, R1 - 7), [lx, ly] = P(p.d, R1 - 9), [px, py] = P(p.d, R1 - 22), [dx, dy] = P(p.d, R1 - 37);
+      g += `<line x1="${tx1}" y1="${ty1}" x2="${tx2}" y2="${ty2}" stroke="#F0D48C" stroke-width="1.4"/><line x1="${tx2}" y1="${ty2}" x2="${lx}" y2="${ly}" stroke="rgba(240,212,140,.3)"/>`;
+      g += `<text x="${px}" y="${py}" text-anchor="middle" dominant-baseline="central" font-size="15" fill="#F0D48C">${PLANETS[p.k].g}</text>`;
+      g += `<text x="${dx}" y="${dy}" text-anchor="middle" dominant-baseline="central" font-size="8" fill="rgba(255,255,255,.5)">${Math.floor(p.lon % 30)}°</text>`;
+    }
+    if (N.asc != null) {
+      const [ax, ay] = P(N.asc, R0 + 2), [ax2, ay2] = P(N.asc, R3);
+      g += `<line x1="${ax}" y1="${ay}" x2="${ax2}" y2="${ay2}" stroke="#D8B258" stroke-width="1.6"/><text x="${ax - 2}" y="${ay - 6}" font-size="9" fill="#D8B258" text-anchor="end" font-weight="600">ASC</text>`;
+      const [mx, my] = P(N.mc, R0 + 2), [mx2, my2] = P(N.mc, R3);
+      g += `<line x1="${mx}" y1="${my}" x2="${mx2}" y2="${my2}" stroke="#D8B258" stroke-width="1.2" stroke-dasharray="3 3"/><text x="${mx}" y="${my - 5}" font-size="9" fill="#D8B258" text-anchor="middle" font-weight="600">MC</text>`;
+    }
+    return `<svg viewBox="-30 -18 420 396" font-family="Inter, sans-serif">${g}</svg>`;
+  }
+
+  function renderForm() {
+    const p = profile || { name: tgName, date: '', time: '', timeKnown: true, city: 0, tz: 3 };
+    const tzs = []; for (let t = -12; t <= 14; t += 0.5) tzs.push(t); [5.75, 12.75].forEach(t => tzs.push(t)); tzs.sort((a, b) => a - b);
+    const tzLabel = t => `UTC${t >= 0 ? '+' : '−'}${Math.floor(Math.abs(t))}${Math.abs(t) % 1 ? ':' + pad(Math.round((Math.abs(t) % 1) * 60)) : ''}`;
+    $('#me').innerHTML = `<h1 class="page-title">${profile ? 'Профиль' : 'Ваша карта'}</h1><div class="page-subtitle">Данные рождения для точного расчёта</div>
+      <div class="card">
+        <div class="field"><label>Имя (для нумерологии — как в документах)</label><input class="input" id="f-name" value="${esc(p.name || '')}" placeholder="Например, Анна"></div>
+        <div class="field"><label>Дата рождения</label><input class="input" type="date" id="f-date" value="${p.date || ''}" min="1900-01-01" max="2100-12-31"></div>
+        <div class="field"><label>Время рождения</label><input class="input" type="time" id="f-time" value="${p.time || '12:00'}"></div>
+        <label class="check"><input type="checkbox" id="f-notime" ${p.timeKnown === false ? 'checked' : ''}> Не знаю точного времени</label>
+        <div class="field"><label>Город рождения</label><select class="select" id="f-city">${CITIES.map((ct, i) => `<option value="${i}" ${p.city === i ? 'selected' : ''}>${ct[0]}</option>`).join('')}<option value="-1" ${p.city === -1 ? 'selected' : ''}>Другой — ввести координаты</option></select></div>
+        <div class="row2" id="f-coords" style="${p.city === -1 ? '' : 'display:none'}"><div class="field"><label>Широта (N+, S−)</label><input class="input" id="f-lat" inputmode="decimal" value="${p.city === -1 ? p.lat : ''}" placeholder="55.75"></div><div class="field"><label>Долгота (E+, W−)</label><input class="input" id="f-lon" inputmode="decimal" value="${p.city === -1 ? p.lon : ''}" placeholder="37.62"></div></div>
+        <div class="field"><label>Часовой пояс в момент рождения</label><select class="select" id="f-tz">${tzs.map(t => `<option value="${t}" ${p.tz === t ? 'selected' : ''}>${tzLabel(t)}</option>`).join('')}</select></div>
+        <div class="notice" style="margin-bottom:14px">Пояс подставляется по городу автоматически. Если вы родились летом в годы, когда действовало летнее время (в СССР/России — 1981–2010), добавьте +1 час.</div>
+        <button class="btn btn-primary" id="f-save">Рассчитать натальную карту</button>
+        ${profile ? '<button class="btn btn-ghost mt8" style="width:100%" id="f-cancel">Отмена</button>' : ''}
+      </div>
+      ${!profile ? '<p class="center dim small">Данные хранятся только на вашем устройстве и в облаке Telegram.</p>' : ''}`;
+    const city = $('#f-city'), tz = $('#f-tz');
+    city.addEventListener('change', () => { const v = +city.value; $('#f-coords').style.display = v === -1 ? '' : 'none'; if (v >= 0) tz.value = CITIES[v][3]; });
+    $('#f-notime').addEventListener('change', e => $('#f-time').disabled = e.target.checked);
+    $('#f-time').disabled = $('#f-notime').checked;
+    $('#f-cancel')?.addEventListener('click', () => { editing = false; renderMe(); });
+    $('#f-save').addEventListener('click', () => {
+      const date = $('#f-date').value;
+      if (!date || +date.slice(0, 4) < 1900 || +date.slice(0, 4) > 2100) { toast('Укажите дату рождения'); notify('error'); return; }
+      const ci = +city.value; let lat, lon;
+      if (ci >= 0) { lat = CITIES[ci][1]; lon = CITIES[ci][2]; }
+      else {
+        lat = parseFloat($('#f-lat').value.replace(',', '.')); lon = parseFloat($('#f-lon').value.replace(',', '.'));
+        if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 66 || Math.abs(lon) > 180) { toast('Проверьте координаты (широта до ±66°)'); notify('error'); return; }
+      }
+      const timeKnown = !$('#f-notime').checked;
+      profile = { name: $('#f-name').value.trim(), date, time: timeKnown ? ($('#f-time').value || '12:00') : '12:00', timeKnown, city: ci, lat, lon, tz: +tz.value };
+      store.set('lumina_profile', profile); computeNatal(); editing = false;
+      notify('success'); toast('Натальная карта рассчитана ✨');
+      renderAll(); goTab('me');
+    });
+  }
+
+  function renderAll() { renderHome(); renderSigns(); renderTarot(); renderMatch(); renderMe(); }
+
+  // ── старт ──
+  drawStars(); addEventListener('resize', drawStars);
+  renderAll();
+  goTab(profile ? 'home' : 'home');
+  // подтянуть профиль из облака Telegram, если локально пусто
+  try {
+    if (!profile && tg?.isVersionAtLeast?.('6.9') && tg.initData) {
+      tg.CloudStorage.getItem('lumina_profile', (err, val) => {
+        if (!err && val) { try { profile = JSON.parse(val); localStorage.setItem('lumina_profile', val); computeNatal(); renderAll(); } catch (e) {} }
+      });
+    }
+  } catch (e) {}
+  // обновить «Эфир», если приложение открыто через полночь
+  let lastDay = dateKey(new Date());
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && dateKey(new Date()) !== lastDay) { lastDay = dateKey(new Date()); renderHome(); } });
+})();
 
 </script>
 </body>
